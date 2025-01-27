@@ -8,6 +8,8 @@ from torch_geometric.data import Data
 from torch_geometric.nn import GCNConv
 from torch_geometric.transforms import RandomNodeSplit
 
+from graphdatascience import ServerVersion
+
 from open_pulse_graph_classifier.cora_loader import cora_loading
 from open_pulse_graph_classifier.neo4j_connection import connect_neo4j
 
@@ -17,8 +19,10 @@ np.random.seed(42)
 torch.manual_seed(42)
 torch.cuda.manual_seed_all(42)
 
+
 gds = connect_neo4j()
-G = cora_loading(gds)
+assert gds.server_version() >= ServerVersion(2, 5, 0)
+G = gds.graph.get("Open Pulse Graph")
 
 sample_topology_df = gds.graph.relationships.stream(G)
 display(sample_topology_df)
