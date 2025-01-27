@@ -1,8 +1,10 @@
 -e .
-mypy
-notebook
-numpy
-pandas
 pre-commit
 pytest
 ruff
+
+graphdatascience
+torch
+torch_scatter
+torch_sparse
+torch_geometric
