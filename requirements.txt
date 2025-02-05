@@ -1,10 +1,4 @@
 -e .
-pre-commit
-pytest
-ruff
-
-graphdatascience
-torch
-torch_scatter
-torch_sparse
-torch_geometric
+neo4j>=5.28.0
+pre-commit>=4.1.0
+ruff>=0.9.4

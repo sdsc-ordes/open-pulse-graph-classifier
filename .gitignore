@@ -1,3 +1,6 @@
+# Ignore data folders
+open-pulse-graph-classifier/data/*
+
 # Python cache
 *.pyc
 .ipynb_checkpoints/
