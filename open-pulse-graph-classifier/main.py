@@ -31,5 +31,6 @@ if __name__ == "__main__":
         edges_index, edges_attributes = downloader.retrieve_edges(relationships)
         print(nodes_ids)
         print(nodes_features)
+        # downloader.retrieve_all()
     finally:
         downloader.close()

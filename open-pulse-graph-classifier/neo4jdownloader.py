@@ -14,6 +14,15 @@ class Neo4JDownloader:
         # with it
         self.driver.close()
 
+    def get_entire_graph(self, driver):
+        query = """
+        MATCH (s)-[r]->(t)
+        RETURN s, r, t
+        """
+        results = driver.run(query)
+        for record in results:
+            print(record)
+
     def get_nodes(self, driver, label):
         query = f"""
         MATCH (n:{label})
@@ -27,8 +36,6 @@ class Neo4JDownloader:
                 features.append(
                     record["features"]
                 )  # Assuming features are stored as a list
-            print("GET NODES")
-            print(node_ids)
             return node_ids, np.array(features, dtype=np.float32)
         except (DriverError, Neo4jError) as exception:
             logging.error("%s raised an error: \n%s", query, exception)
@@ -49,7 +56,7 @@ class Neo4JDownloader:
     def retrieve_nodes(self, nodes_list):
         ids = {}
         feats = {}
-        with self.driver.session() as session:
+        with self.driver.session(database=self.database) as session:
             for node in nodes_list:
                 id, feat = session.execute_read(self.get_nodes, node)
                 ids[node] = id
@@ -60,7 +67,7 @@ class Neo4JDownloader:
         edges_index = {}
         edges_attributes = {}
         for key, val in relationship_dict.items():
-            with self.driver.session() as session:
+            with self.driver.session(database=self.database) as session:
                 source = val["source"]
                 target = val["target"]
                 relationship = key
@@ -70,3 +77,7 @@ class Neo4JDownloader:
                 edges_index[key] = edge_index
                 edges_attributes[key] = edge_attributes
         return edges_index, edges_attributes
+
+    def retrieve_all(self):
+        with self.driver.session(database=self.database) as session:
+            session.execute_read(self.get_entire_graph)
