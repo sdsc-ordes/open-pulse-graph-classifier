@@ -1,12 +1,6 @@
-# import numpy as np
-# import torch
-# import torch.nn.functional as F
-# from torch_geometric.data import Data
-# from torch_geometric.nn import GCNConv
-# from torch_geometric.transforms import RandomNodeSplitter
-
 import os
 from neo4jdownloader import Neo4JDownloader
+from data_processor import create_heterogenous_data
 
 if __name__ == "__main__":
     NEO4J_URI = os.environ.get("NEO4J_URI")
@@ -16,10 +10,19 @@ if __name__ == "__main__":
 
     nodes = ["User", "Repository", "Organisation"]
     relationships = {
-        "MEMBER_OF": {"source": "User", "target": "Organisation"},
-        "OWNER_OF": {"source": "User", "target": "Repository"},
-        "CONTRIBUTOR_OF": {"source": "User", "target": "Repository"},
-        "FORK_OF": {"source": "Repository", "target": "Repository"},
+        "MEMBER_OF": {"type1": {"source": "User", "target": "Organisation"}},
+        "OWNER_OF": {
+            "type1": {"source": "User", "target": "Repository"},
+            "type2": {"source": "Organisation", "target": "Repository"},
+        },
+        "CONTRIBUTOR_OF": {
+            "type1": {"source": "User", "target": "Repository"},
+            "type2": {"source": "Organisation", "target": "Repository"},
+        },
+        "FORK_OF": {
+            "type1": {"source": "User", "target": "Repository"},
+            "type1": {"source": "Organisation", "target": "Repository"},
+        },
     }
 
     downloader = Neo4JDownloader(
@@ -27,10 +30,14 @@ if __name__ == "__main__":
     )
 
     try:
-        nodes_ids, nodes_features = downloader.retrieve_nodes(nodes)
-        edges_index, edges_attributes = downloader.retrieve_edges(relationships)
-        print(nodes_ids)
-        print(nodes_features)
         # downloader.retrieve_all()
+        nodes_ids, nodes_features = downloader.retrieve_nodes(nodes)
+        edges_indices, edges_attributes = downloader.retrieve_edges(relationships)
+        # print(nodes_ids)
+        # print(nodes_features)
+        # print(edges_indices)
+
+        data = create_heterogenous_data(nodes_ids, edges_indices, relationships)
+        print(data)
     finally:
         downloader.close()
