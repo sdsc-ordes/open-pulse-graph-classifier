@@ -1,6 +1,10 @@
 import os
+from torch_geometric.nn import to_hetero
+
 from neo4jdownloader import Neo4JDownloader
 from data_processor import create_heterogenous_data
+from data_transformer import data_transformer
+from models.supervised import GNN
 
 if __name__ == "__main__":
     NEO4J_URI = os.environ.get("NEO4J_URI")
@@ -40,9 +44,14 @@ if __name__ == "__main__":
         data = create_heterogenous_data(nodes_ids, edges_indices, relationships)
         print(data)
 
-        import torch_geometric.transforms as T
-
-        data = T.ToUndirected()(data)
-        print(data)
     finally:
         downloader.close()
+
+    if data:
+        data = data_transformer(data)
+
+        # Q: There are only 2 out channels because it predicts either community or non community ?
+        model_supervised = GNN(hidden_channels=64, out_channels=2)
+        model_supervised_hetero = to_hetero(
+            model_supervised, data.metadata(), aggr="sum"
+        )
