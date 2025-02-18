@@ -2,17 +2,6 @@ import torch
 import tensorflow as tf
 from torch_geometric.data import HeteroData
 
-# from sklearn import preprocessing
-# features are strings, they need to be encoded
-# label_encoder = preprocessing.LabelEncoder()
-# nodes_features_encoded = {}
-# for node, features in nodes_features.items():
-#     nodes_features_encoded[node] = encode(label_encoder, features)
-# def encode(label_encoder, feat_string):
-#      # feat_String is a list of strings
-#     feat_encoded = label_encoder.fit_transform(feat_string)
-#     return feat_encoded
-
 
 def create_tensor_matrix(array1, array2):
     tensor1 = torch.tensor(array1)
@@ -37,3 +26,16 @@ def create_heterogenous_data(nodes_ids, edges_indices, relationships):
                     edges_indices[relationship][type][0],
                     edges_indices[relationship][type][1],
                 )
+    return data
+
+
+# from sklearn import preprocessing
+# features are strings, they need to be encoded
+# label_encoder = preprocessing.LabelEncoder()
+# nodes_features_encoded = {}
+# for node, features in nodes_features.items():
+#     nodes_features_encoded[node] = encode(label_encoder, features)
+# def encode(label_encoder, feat_string):
+#      # feat_String is a list of strings
+#     feat_encoded = label_encoder.fit_transform(feat_string)
+#     return feat_encoded

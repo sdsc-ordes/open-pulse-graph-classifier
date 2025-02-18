@@ -39,5 +39,10 @@ if __name__ == "__main__":
 
         data = create_heterogenous_data(nodes_ids, edges_indices, relationships)
         print(data)
+
+        import torch_geometric.transforms as T
+
+        data = T.ToUndirected()(data)
+        print(data)
     finally:
         downloader.close()
