@@ -29,6 +29,14 @@ def create_heterogenous_data(nodes_ids, edges_indices, relationships):
     return data
 
 
+def add_labels(data, label):
+    node_types, _ = data.metadata()
+    for node_type in node_types:
+        num_nodes = data[node_type].x.shape[0]
+        data[node_type].y = torch.tensor([label] * num_nodes)
+    return data
+
+
 # from sklearn import preprocessing
 # features are strings, they need to be encoded
 # label_encoder = preprocessing.LabelEncoder()

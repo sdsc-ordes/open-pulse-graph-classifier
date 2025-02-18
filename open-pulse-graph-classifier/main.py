@@ -1,8 +1,9 @@
 import os
+import torch
 from torch_geometric.nn import to_hetero
 
 from neo4jdownloader import Neo4JDownloader
-from data_processor import create_heterogenous_data
+from data_processor import create_heterogenous_data, add_labels
 from data_transformer import data_transformer
 from models.supervised import GNN
 
@@ -42,7 +43,7 @@ if __name__ == "__main__":
         # print(edges_indices)
 
         data = create_heterogenous_data(nodes_ids, edges_indices, relationships)
-        print(data)
+        data = add_labels(data, 1)
 
     finally:
         downloader.close()
@@ -55,3 +56,5 @@ if __name__ == "__main__":
         model_supervised_hetero = to_hetero(
             model_supervised, data.metadata(), aggr="sum"
         )
+        with torch.no_grad():  # Initialize lazy modules.
+            out = model_supervised_hetero(data.x_dict, data.edge_index_dict)
