@@ -1,4 +1,14 @@
--e .
-neo4j>=5.28.0
-pre-commit>=4.1.0
-ruff>=0.9.4
+# -e .
+neo4j
+pre-commit
+ruff
+
+scikit-learn
+
+tensorflow
+
+setuptools
+
+torch
+torch-sparse
+torch-geometric

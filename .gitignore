@@ -1,3 +1,6 @@
+# Ignore envs
+.venv
+
 # Ignore data folders
 open-pulse-graph-classifier/data/*
 

@@ -16,15 +16,13 @@ def extract_edges(edge_indices, src_mask, dst_mask):
             if edge[0] in src[src_mask] and edge[1] in dst[dst_mask]:
                 edges_masked.append(edge)
         edges_masked = torch.Tensor(edges_masked)
-        # mask = src[src_mask] & dst[dst_mask]
-        # edges_masked = edge_indices[:, mask]
         if edges_masked.nelement() != 0:
             return edges_masked
         else:
-            # no edges
+            # no edges after the masking
             return None
     else:
-        # no edges
+        # no edges even before the masking
         return None
 
 
