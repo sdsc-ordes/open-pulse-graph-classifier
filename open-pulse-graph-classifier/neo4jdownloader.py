@@ -41,7 +41,7 @@ class Neo4JDownloader:
 
     def get_edges(self, driver, src_label, rel_type, dst_label):
         query = f"""
-        MATCH (a:{src_label})-[r:{rel_type}]->(b:{dst_label})
+        MATCH (a:{src_label})-[r:`{rel_type}`]->(b:{dst_label})
         RETURN ID(a) AS src, ID(b) AS dst
         """
         # if we decide to add edge features: RETURN ID(a) AS src, ID(b) AS dst, r.feat AS edge_features

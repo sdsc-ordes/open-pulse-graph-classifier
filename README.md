@@ -5,6 +5,9 @@
 
 This tool is a graph classifier developped for the EPFL Open Pulse project. The graph is composed of nodes representing Github Organizations, Users and Repositories. The classifier aims to classify if a Repository nodes belongs to EPFL Github community or not.
 
+## Important modelling choices
+
+During graph extraction for creating the Pygeometric HeteroData object, the indices of the nodes start at 1 (not zero).
 
 ## Installation
 

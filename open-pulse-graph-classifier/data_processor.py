@@ -4,8 +4,10 @@ from torch_geometric.data import HeteroData
 
 
 def create_tensor_matrix(array1, array2):
-    tensor1 = torch.tensor(array1)
-    tensor2 = torch.tensor(array2)
+    # +1 to match the index augmentation of 1 of the nodes
+    # to avoid having a zero index node
+    tensor1 = torch.tensor(array1 + 1)
+    tensor2 = torch.tensor(array2 + 1)
     tensor_matrix = torch.stack((tensor1, tensor2))
     return tensor_matrix
 
@@ -14,7 +16,8 @@ def create_heterogenous_data(nodes_ids, edges_indices, relationships):
     data = HeteroData()
 
     for key, val in nodes_ids.items():
-        data[key].x = tf.convert_to_tensor(val)
+        # +1 augmentation of the indices of the nodes to avoid having a zero index node
+        data[key].x = tf.convert_to_tensor([v + 1 for v in val])
 
     for relationship, subdict in relationships.items():
         for type, definition in subdict.items():
