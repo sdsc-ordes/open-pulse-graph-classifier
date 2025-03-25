@@ -9,6 +9,11 @@ from models.supervised import GNN
 from loaders import split_data
 from train_eval import train, evaluate
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  # Load environment variables from .env file
+
 if __name__ == "__main__":
     NEO4J_URI = os.environ.get("NEO4J_URI")
     NEO4J_DATABASE = os.environ.get("NEO4J_DATABASE")
@@ -32,6 +37,8 @@ if __name__ == "__main__":
         },
     }
 
+    print(NEO4J_URI)
+    print(NEO4J_DATABASE)
     downloader = Neo4JDownloader(
         NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD, NEO4J_DATABASE
     )
@@ -64,6 +71,7 @@ if __name__ == "__main__":
 
         # train model
         n_epochs = 100
+        # try to change cuda to mps
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model = model_supervised_hetero.to(device)
         optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)

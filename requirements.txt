@@ -3,6 +3,8 @@ neo4j
 pre-commit
 ruff
 
+dotenv
+
 scikit-learn
 
 tensorflow

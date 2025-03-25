@@ -34,6 +34,10 @@ def split_data(data, batch_size=128):
     subgraph_test = create_test_subgraph(data)
     subgraph_val = create_val_subgraph(data)
 
+    print(subgraph_train)
+    print(subgraph_test)
+    print(subgraph_val)
+
     train_loaders = {
         node_type: NeighborLoader(
             subgraph_train,
