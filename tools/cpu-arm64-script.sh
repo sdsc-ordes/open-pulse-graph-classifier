@@ -9,7 +9,7 @@ uv pip install "neo4j==5.28.1" "typing-extensions==4.13.0" "sympy==1.13.1" "scip
 uv pip install "torch==2.5.0" --index-url https://download.pytorch.org/whl/cpu
 
 # Now install PyTorch Geometric and extensions
-uv pip install --no-build-isolation "torch-geometric==2.1.0"
+uv pip install --no-build-isolation "torch-geometric==2.5.0"
 
 uv pip install --no-build-isolation --verbose "git+https://github.com/rusty1s/pytorch_sparse.git@0.6.18"
 uv pip install --no-build-isolation --verbose "git+https://github.com/rusty1s/pytorch_scatter.git@2.1.2"
