@@ -41,8 +41,8 @@ ENV PATH="/app/.venv/bin:$PATH"
 
 ENV DASK_DISTRIBUTED__WORKER__DAEMON=False
 
-#ENTRYPOINT ["/bin/bash"]
-RUN python /open-pulse-graph-classifier/main.py
+ENTRYPOINT ["/bin/bash"]
+#RUN python /open-pulse-graph-classifier/main.py
 
 
 # FROM nvidia/cuda:12.1.0-devel-ubuntu22.04

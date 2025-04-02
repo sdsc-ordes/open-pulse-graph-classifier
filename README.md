@@ -14,11 +14,18 @@ During graph extraction for creating the Pygeometric HeteroData object, the indi
 Docker image building:
 
 ```
-docker build . --platform linux/amd64
+docker build . --build-arg PLATFORM=cpu --platform linux/amd64 -t openpulse
 ```
 
 Docker image run:
 
 ```
-docker run
+docker run -it openpulse
+```
+
+Inside docker:
+```
+uv sync
+source .venv/bin/activate
+python open-pulse-graph-classifier/main.py
 ```

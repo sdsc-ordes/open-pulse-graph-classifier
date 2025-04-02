@@ -17,13 +17,13 @@ dependencies = [
 [project.optional-dependencies]
 cpu = [
     "torch>=2.5.0",
-    "torch-sparse==0.6.18+pt25cpu",
-    "torch-scatter==2.1.2+pt25cpu",
+    "torch-sparse==0.6.18+pt25cpu; sys_platform != 'darwin'",
+    "torch-scatter==2.1.2+pt25cpu; sys_platform != 'darwin'",
 ]
 cu124 = [
     "torch>=2.5.0",
-    "torch-sparse==0.6.18+pt25cu124",
-    "torch-scatter==2.1.2+pt25cu124",
+    "torch-sparse==0.6.18+pt25cu124; sys_platform != 'darwin'",
+    "torch-scatter==2.1.2+pt25cu124; sys_platform != 'darwin'",
 
 ]
 
