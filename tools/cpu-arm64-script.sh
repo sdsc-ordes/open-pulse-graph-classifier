@@ -1,9 +1,6 @@
-# docker build -t open-pulse-graph-classifier --build-arg PLATFORM=cpu --platform linux/amd64 .
-# docker run --rm -it -v $(pwd):/app --platform linux/amd64 open-pulse-graph-classifier
-
 apt-get install -y build-essential
 
-mkdir /amd64 && cd /amd64
+mkdir /arm64 && cd /arm64
 uv venv --python 3.12
 source .venv/bin/activate
 uv pip install setuptools wheel numpy
@@ -13,8 +10,9 @@ uv pip install "torch==2.5.0" --index-url https://download.pytorch.org/whl/cpu
 
 # Now install PyTorch Geometric and extensions
 uv pip install --no-build-isolation "torch-geometric==2.1.0"
-uv pip install --no-build-isolation "torch-scatter==2.1.2+pt25cpu" --find-links https://data.pyg.org/whl/torch-2.5.0+cpu.html
-uv pip install --no-build-isolation "torch-sparse==0.6.18+pt25cpu" --find-links https://data.pyg.org/whl/torch-2.5.0+cpu.html
+
+uv pip install --no-build-isolation --verbose "git+https://github.com/rusty1s/pytorch_sparse.git@0.6.18"
+uv pip install --no-build-isolation --verbose "git+https://github.com/rusty1s/pytorch_scatter.git@2.1.2"
 
 python3 -c "
 import torch
@@ -39,4 +37,3 @@ values = torch.tensor([1.0, 2.0])
 sparse = torch.sparse_coo_tensor(indices, values, (2, 2))
 print('Sparse tensor to dense:', sparse.to_dense())
 "
-
