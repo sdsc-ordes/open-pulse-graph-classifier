@@ -1,5 +1,4 @@
 import torch
-import tensorflow as tf
 from torch_geometric.data import HeteroData
 
 
@@ -17,7 +16,7 @@ def create_heterogenous_data(nodes_ids, edges_indices, relationships):
 
     for key, val in nodes_ids.items():
         # +1 augmentation of the indices of the nodes to avoid having a zero index node
-        data[key].x = tf.convert_to_tensor([v + 1 for v in val])
+        data[key].x = torch.Tensor([v + 1 for v in val])
 
     for relationship, subdict in relationships.items():
         for type, definition in subdict.items():

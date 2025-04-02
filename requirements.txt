@@ -9,8 +9,6 @@ dotenv
 
 scikit-learn
 
-tensorflow
-
 setuptools
 
 torch==2.5.0
