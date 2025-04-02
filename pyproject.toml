@@ -6,25 +6,37 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "neo4j>=5.28.1",
-    "torch-geometric>=2.6.1",
-    "torch==2.5.0",
     "typing-extensions>=4.13.0",
     "sympy>=1.13.1",
     "scipy>=1.15.2",
 ]
 
+[build-system]
+requires = [
+    "setuptools>=67.1.0",
+    "wheel>=0.38.4",
+    "uvtools>=0.1.0",
+    "torch>=2.5.0",
+    "numpy"
+]
+build-backend = "setuptools.build_meta"
+
 
 [project.optional-dependencies]
 cpu = [
-    "torch>=2.5.0",
+    "torch>=2.5.0; sys_platform != 'darwin' or platform_machine != 'arm64'",
+    "torch>=2.5.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
+    "torch-geometric>=2.6.1",
+    "torch-sparse @ git+https://github.com/rusty1s/pytorch_sparse.git@0.6.18; sys_platform == 'darwin'",
     "torch-sparse==0.6.18+pt25cpu; sys_platform != 'darwin'",
+    "torch-scatter @ git+https://github.com/rusty1s/pytorch_scatter.git@2.1.2; sys_platform == 'darwin'",
     "torch-scatter==2.1.2+pt25cpu; sys_platform != 'darwin'",
 ]
 cu124 = [
     "torch>=2.5.0",
+    "torch-geometric>=2.6.1",
     "torch-sparse==0.6.18+pt25cu124; sys_platform != 'darwin'",
     "torch-scatter==2.1.2+pt25cu124; sys_platform != 'darwin'",
-
 ]
 
 [tool.uv]
@@ -34,10 +46,17 @@ conflicts = [
     { extra = "cu124" },
   ],
 ]
-no-build-isolation-package = ['torch-sparse',"torch-scatter"]
+
+no-build-isolation-package = [
+  'torch-sparse',
+  'torch-scatter',
+  'git+https://github.com/rusty1s/pytorch_sparse.git@0.6.18',
+  'git+https://github.com/rusty1s/pytorch_scatter.git@2.1.2'
+]
+
 find-links = [
   "https://data.pyg.org/whl/torch-2.5.0+cu124.html",
-  "https://data.pyg.org/whl/torch-2.5.0+cpu.html",
+  "https://data.pyg.org/whl/torch-2.5.0+cpu.html"
 ]
 
 

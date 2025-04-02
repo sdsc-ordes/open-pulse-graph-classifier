@@ -9,7 +9,7 @@ ARG PLATFORM
 RUN echo "Using GPU image"
 
 # Define cpu image
-FROM ubuntu:22.04 as cpu
+FROM ubuntu:22.04 AS cpu
 ARG PLATFORM
 ARG UV_ARGUMENTS="--extra cpu"
 RUN echo "Using CPU-only image"
@@ -22,7 +22,7 @@ COPY --from=ghcr.io/astral-sh/uv:0.5.8 /uv /uvx /bin/
 
 RUN apt-get update && \
    apt-get install -y  --no-install-recommends  \
-      nano curl
+      nano curl git ca-certificates
 
 
 # Copy the project into the image
@@ -31,9 +31,13 @@ ADD . /app
 # Sync the project into a new environment, using the frozen lockfile
 WORKDIR /app
 
-# Define the build argument with a default value of an empty string (optional)
 
-RUN uv sync --frozen ${UV_ARGUMENTS}
+# Create a virtual environment with UV
+#RUN uv venv
+#RUN uv pip install --no-build-isolation setuptools wheel
+
+# Define the build argument with a default value of an empty string (optional)
+#RUN uv sync --no-build-isolation ${UV_ARGUMENTS}
 
 
 # make uv's python the default python for the image
