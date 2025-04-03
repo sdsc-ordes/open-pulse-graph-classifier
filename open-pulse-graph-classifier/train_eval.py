@@ -28,7 +28,7 @@ def train(train_loaders, device, model, optimizer, n_epochs):
             for batch in loader:
                 optimizer.zero_grad()
                 batch = batch.to(device)
-
+                print(batch.edge_index_dict)
                 out = model(batch.x_dict, batch.edge_index_dict)
 
                 # Compute loss for the current node type
