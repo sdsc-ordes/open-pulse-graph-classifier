@@ -4,7 +4,7 @@ on:
   release:
     type: [published]
   push:
-    branches: [main]
+    branches: [feat-dockerfile-cpu]
   pull_request:
     paths:
       - 'pyproject.toml'
