@@ -56,7 +56,7 @@ jobs:
           file: .docker/Dockerfile
           push: false
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.release-version.outputs.version_build }}
-          build-args: PLATFORM=gpu
+          build-args: PLATFORM=cu124
           outputs: type=image,annotation-index.org.opencontainers.image.description=Run a Graph Neural Network.
 
   push-image:
@@ -120,5 +120,5 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: PLATFORM=gpu
+          build-args: PLATFORM=cu124
           outputs: type=image,annotation-index.org.opencontainers.image.description=Run a Graph Neural Network.
