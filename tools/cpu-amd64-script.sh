@@ -8,8 +8,12 @@ uv venv --python 3.12
 source .venv/bin/activate
 uv pip install setuptools wheel numpy
 
-uv pip install "neo4j==5.28.1" "typing-extensions==4.13.0" "sympy==1.13.1" "scipy==1.15.2" "dotenv==0.9.9" "scikit-learn==1.6.1"
+uv pip install "neo4j==5.28.1"
+uv pip install "typing-extensions==4.13.0" "sympy==1.13.1"
+uv pip install "scipy==1.15.2" "dotenv==0.9.9" "scikit-learn==1.6.1"
 uv pip install "torch==2.5.0" --index-url https://download.pytorch.org/whl/cpu
+
+uv pip install pyg-lib -f https://data.pyg.org/whl/torch-2.5.0+cpu.html
 
 # Now install PyTorch Geometric and extensions
 uv pip install --no-build-isolation "torch-geometric==2.5.0"
