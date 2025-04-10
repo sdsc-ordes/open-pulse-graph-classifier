@@ -1,28 +1,28 @@
-ARG PLATFORM
-ARG UV_ARGUMENTS=""
+# ARG PLATFORM
+# ARG UV_ARGUMENTS=""
 
 # We select the image based on the platform argument
 
 # Define GPU image
 FROM nvidia/cuda:12.4.1-base-ubuntu22.04 AS cu124
-ARG PLATFORM
-RUN echo "Using GPU image"
-ARG UV_ARGUMENTS="--extra cu124"
+# ARG PLATFORM
+# RUN echo "Using GPU image"
+# ARG UV_ARGUMENTS="--extra cu124"
 
 
 # Define cpu image
 FROM ubuntu:22.04 AS cpu
-ARG PLATFORM
-ARG UV_ARGUMENTS="--extra cpu"
-RUN echo "Using CPU-only image"
+# ARG PLATFORM
+# ARG UV_ARGUMENTS="--extra cpu"
+# RUN echo "Using CPU-only image"
 
-# Select image
-FROM ${PLATFORM:-cu124}
-ARG PLATFORM
+# # Select image
+# FROM ${PLATFORM:-cu124}
+# ARG PLATFORM
 
 
-ARG TARGETPLATFORM
-RUN echo "Building for platform: ${TARGETPLATFORM}"
+# ARG TARGETPLATFORM
+# RUN echo "Building for platform: ${TARGETPLATFORM}"
 
 
 COPY --from=ghcr.io/astral-sh/uv:0.6.12 /uv /uvx /bin/
@@ -35,7 +35,7 @@ ADD . /app
 WORKDIR /app
 
 # Define the build argument with a default value of an empty string (optional)
-RUN uv venv
+RUN uv venv --python 3.12
 RUN uv pip install setuptools
 RUN uv pip install torch==2.5.0
 RUN uv pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.5.0+cu124.html
