@@ -44,6 +44,7 @@ jobs:
         id: release-version
         run: |
           version=$(grep -E '^version += +' pyproject.toml | sed -E 's/.*= +//' | sed "s/['\"]//g")
+          version=0.1.0
           echo "version=${version}" >> $GITHUB_OUTPUT
           echo "version_build=${version}_"$(git rev-parse --short "$GITHUB_SHA") >> $GITHUB_OUTPUT
 
