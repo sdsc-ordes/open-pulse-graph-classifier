@@ -11,7 +11,7 @@ ARG UV_ARGUMENTS="--extra cu124"
 
 
 # Define cpu image
-FROM --platform=linux/amd64 ubuntu:22.04 AS cpu
+FROM ubuntu:22.04 AS cpu
 ARG PLATFORM
 ARG UV_ARGUMENTS="--extra cpu"
 RUN echo "Using CPU-only image"
@@ -35,8 +35,7 @@ ADD . /app
 WORKDIR /app
 
 # Define the build argument with a default value of an empty string (optional)
-RUN uv venv && source .venv/bin/activate && uv pip install ${UV_ARGUMENTS}
-#RUN uv sync ${UV_ARGUMENTS}
+RUN uv sync ${UV_ARGUMENTS}
 
 
 # make uv's python the default python for the image
