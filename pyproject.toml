@@ -1,78 +1,25 @@
 [project]
 name = "torchgeometric"
 version = "0.1.0"
-description = "Add your description here"
-readme = "README.md"
+description = "A project using PyTorch with CUDA and graph libraries"
 requires-python = ">=3.12"
 dependencies = [
-    "torch-geometric>=2.6.1",
-]
-
-[project.optional-dependencies]
-cpu = [
-    "torch==2.5.0",
-
-    # Use precompiled on Linux and Windows
-    "torch-sparse==0.6.18+pt25cpu; sys_platform == 'win32' or sys_platform == 'linux'",
-    "torch-scatter==2.1.2+pt25cpu; sys_platform == 'win32' or sys_platform == 'linux'",
-    "pyg-lib==0.4.0+pt25cpu; sys_platform == 'win32' or sys_platform == 'linux'",
-
-    # Build them for all other platforms
-    "torch-sparse; sys_platform != 'win32' and sys_platform != 'linux'",
-    "torch-scatter; sys_platform != 'win32' and sys_platform != 'linux'",
-    "pyg-lib==0.4.0; sys_platform != 'win32' and sys_platform != 'linux'",
-]
-cu124 = [
-    "torch==2.5.0",
-
-    # Use precompiled on Linux and Windows
-    "torch-sparse==0.6.18+pt25cu124; sys_platform == 'win32' or sys_platform == 'linux'",
-    "torch-scatter==2.1.2+pt25cu124; sys_platform == 'win32' or sys_platform == 'linux'",
-    "pyg-lib==0.4.0+pt25cu124; sys_platform == 'win32' or sys_platform == 'linux'",
-
-    # Build them for all other platforms (Note: requires CUDA libraries configured)
-    "torch-sparse; sys_platform != 'win32' and sys_platform != 'linux'",
-    "torch-scatter; sys_platform != 'win32' and sys_platform != 'linux'",
-    "pyg-lib==0.4.0; sys_platform != 'win32' and sys_platform != 'linux'",
+    "neo4j",
+    "pre-commit",
+    "ruff",
+    "python-dotenv",
+    "scikit-learn",
+    "setuptools",
+    "torch==2.5.0+cu124",
+    "torch-sparse",
+    "torch-geometric",
+    "pyg-lib",
 ]
 
 [tool.uv]
-conflicts = [
-  [
-    { extra = "cpu" },
-    { extra = "cu124" },
-  ],
-]
-no-build-isolation-package = ['torch-sparse',"torch-scatter","pyg-lib"]
-find-links = [
-  "https://data.pyg.org/whl/torch-2.5.0+cpu.html",
-  "https://data.pyg.org/whl/torch-2.5.0+cu124.html",
-]
+# Optional: This tells `uv` to prefer pre-built binaries, which helps with CUDA wheels
+prefer-binary = true
 
-[tool.uv.sources]
-torch = [
-  { index = "pytorch-cpu", extra="cpu", marker = "sys_platform == 'win32' or sys_platform == 'linux'" },
-  { index = "pytorch-cu124", extra="cu124",marker = "sys_platform == 'win32' or sys_platform == 'linux'"},
-]
-torch-sparse = [
-{ git = "https://github.com/rusty1s/pytorch_sparse", rev = "0.6.18", marker = "sys_platform != 'win32' and sys_platform != 'linux'" }
-]
-torch-scatter = [
-{ git = "https://github.com/rusty1s/pytorch_scatter", rev = "2.1.2", marker = "sys_platform != 'win32' and sys_platform != 'linux'" }
-]
-pyg-lib = [
-{ git = "https://github.com/pyg-team/pyg-lib", rev = "0.4.0", marker = "sys_platform != 'win32' and sys_platform != 'linux'" }
-]
-
-
-
-[[tool.uv.index]]
-name = "pytorch-cpu"
-url = "https://download.pytorch.org/whl/cpu"
-explicit = true
-
-
-[[tool.uv.index]]
-name = "pytorch-cu124"
-url = "https://download.pytorch.org/whl/cu124"
-explicit = true
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
