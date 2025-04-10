@@ -34,6 +34,8 @@ ADD . /app
 # Sync the project into a new environment, using the frozen lockfile
 WORKDIR /app
 
+RUN echo ${UV_ARGUMENTS}
+RUN echo ${PLATFORM}
 # Define the build argument with a default value of an empty string (optional)
 RUN uv sync ${UV_ARGUMENTS}
 
