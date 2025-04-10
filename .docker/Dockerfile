@@ -35,9 +35,8 @@ ADD . /app
 WORKDIR /app
 
 # Define the build argument with a default value of an empty string (optional)
-# RUN uv sync ${UV_ARGUMENTS}
-RUN uv sync
 
+RUN uv sync ${UV_ARGUMENTS}
 
 # make uv's python the default python for the image
 ENV PATH="/app/.venv/bin:$PATH"
