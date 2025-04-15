@@ -3,13 +3,13 @@ name: Build and Push Docker Image
 on:
   release:
     type: [published]
-  push:
-    branches: [feat-dockerfile-cpu]
-  pull_request:
-    paths:
-      - 'pyproject.toml'
-      - './docker/**'
-      - '.github/workflows/**'
+  #trigger on each commit of each branch and push with latest tag
+  push :
+  # pull_request:
+  #   paths:
+  #     - 'pyproject.toml'
+  #     - './docker/**'
+  #     - '.github/workflows/**'
 
 env:
   REGISTRY: ghcr.io
@@ -107,8 +107,9 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest,enable=${{ github.event_name == 'push' }}
-            type=raw,value=${{ needs.build-image.outputs.version_build }},enable=${{ github.event_name == 'push' }}
             type=raw,value=${{ needs.build-image.outputs.version }},enable=${{ github.event_name == 'release' }}
+          # for future:
+          # type=raw,value=${{ needs.build-image.outputs.version_build }},enable=${{ github.event_name == 'push' }}
 
       # https://github.com/docker/build-push-action
       - name: Push Docker image
