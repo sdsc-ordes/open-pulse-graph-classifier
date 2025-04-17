@@ -11,7 +11,7 @@ FROM nvidia/cuda:12.4.1-base-ubuntu22.04 AS cu124
 
 
 # Define cpu image
-FROM ubuntu:22.04 AS cpu
+# FROM ubuntu:22.04 AS cpu
 # ARG PLATFORM
 # ARG UV_ARGUMENTS="--extra cpu"
 # RUN echo "Using CPU-only image"
@@ -37,9 +37,10 @@ WORKDIR /app
 # Define the build argument with a default value of an empty string (optional)
 RUN uv venv --python 3.12
 RUN uv pip install setuptools
-RUN uv pip install torch==2.5.0
+RUN uv pip install torch==2.5.0 --index-url https://download.pytorch.org/whl/cu124
 RUN uv pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.5.0+cu124.html
-RUN uv pip install neo4j scikit-learn dotenv
+RUN uv pip install torch-geometric
+RUN uv pip install neo4j scikit-learn python-dotenv
 #RUN uv sync ${UV_ARGUMENTS}
 
 # make uv's python the default python for the image
