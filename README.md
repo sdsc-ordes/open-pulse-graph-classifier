@@ -11,10 +11,12 @@ During graph extraction for creating the Pygeometric HeteroData object, the indi
 
 ## Installation
 
-Docker image building:
+### Docker build (Linux/Windows)
+
+Docker image building :
 
 ```
-docker build . --build-arg PLATFORM=cpu --platform linux/amd64 -t openpulse
+docker build . --platform linux/amd64 -t openpulse
 ```
 
 Docker image run:
@@ -25,7 +27,22 @@ docker run -it openpulse
 
 Inside docker:
 ```
-uv sync
-source .venv/bin/activate
 python open-pulse-graph-classifier/main.py
 ```
+
+### Local dev
+
+```
+source .venv/bin/activate
+uv pip install -r requirements.txt
+python open-pulse-graph-classifier/main.py
+```
+
+### RunAI
+
+```
+runai config project <your project>
+runai submit openpulse -i ghcr.io/sdsc-ordes/open-pulse-graph-classifier:latest --gpu 0.02  --attach
+```
+
+(where `openpulse` is the job name, change according to your needs.)

@@ -1,5 +1,5 @@
 # -e .
---extra-index-url https://download.pytorch.org/whl/cu121
+#--extra-index-url https://download.pytorch.org/whl/cu121
 
 neo4j
 pre-commit
@@ -9,10 +9,8 @@ dotenv
 
 scikit-learn
 
-tensorflow
-
 setuptools
 
-torch==2.5.0
-torch-sparse
+torch
+# torch-sparse
 torch-geometric

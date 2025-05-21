@@ -5,25 +5,16 @@ import numpy as np
 
 def extract_edges(edge_indices, src_mask, dst_mask):
     # Find edges where both nodes are in the set
-    src = edge_indices[0]
-    dst = edge_indices[1]
     src_mask = src_mask.to(torch.bool)
     dst_mask = dst_mask.to(torch.bool)
-
+    edges_masked = torch.empty((2, 0), dtype=torch.long)
     if (True in src_mask) and (True in dst_mask):
-        edges_masked = []
-        for edge in edge_indices:
-            if edge[0] in src[src_mask] and edge[1] in dst[dst_mask]:
-                edges_masked.append(edge)
-        edges_masked = torch.Tensor(edges_masked)
-        if edges_masked.nelement() != 0:
-            return edges_masked
-        else:
-            # no edges after the masking
-            return None
-    else:
-        # no edges even before the masking
-        return None
+        for i in range(src_mask.size()[0]):
+            selected_edge = edge_indices[:, i].view(2, 1)
+            if src_mask[i] and dst_mask[i]:
+                edges_masked = torch.cat([edges_masked, selected_edge], dim=1)
+    # returns either an empty tensor or a filled one
+    return edges_masked
 
 
 def prep_edges_mask(edges, nodes_mask, nodes):
@@ -50,6 +41,7 @@ def create_train_subgraph(data):
 
     # Filter edges: Keep only edges where both nodes are in the set
     for edge_type in data.edge_types:
+        print(edge_type)
         src_type, _, dst_type = edge_type
         edge_indices = data[edge_type].edge_index
         edges_srcs = edge_indices[0]
@@ -60,9 +52,8 @@ def create_train_subgraph(data):
         node_dst = data[dst_type].x
         edges_srcs_mask = prep_edges_mask(edges_srcs, node_src_mask, node_src)
         edges_dsts_mask = prep_edges_mask(edges_dsts, node_dst_mask, node_dst)
-
         edges_masked = extract_edges(edge_indices, edges_srcs_mask, edges_dsts_mask)
-        if edges_masked:
+        if edges_masked.nelement() != 0:
             subgraph[edge_type].edge_index = edges_masked
     return subgraph
 
@@ -81,6 +72,7 @@ def create_test_subgraph(data):
 
     # Filter edges: Keep only edges where both nodes are in the set
     for edge_type in data.edge_types:
+        print(edge_type)
         src_type, _, dst_type = edge_type
         edge_indices = data[edge_type].edge_index
         edges_srcs = edge_indices[0]
@@ -93,7 +85,7 @@ def create_test_subgraph(data):
         edges_dsts_mask = prep_edges_mask(edges_dsts, node_dst_mask, node_dst)
 
         edges_masked = extract_edges(edge_indices, edges_srcs_mask, edges_dsts_mask)
-        if edges_masked:
+        if edges_masked.nelement() != 0:
             subgraph[edge_type].edge_index = edges_masked
     return subgraph
 
@@ -112,6 +104,7 @@ def create_val_subgraph(data):
 
     # Filter edges: Keep only edges where both nodes are in the set
     for edge_type in data.edge_types:
+        print(edge_type)
         src_type, _, dst_type = edge_type
         edge_indices = data[edge_type].edge_index
         edges_srcs = edge_indices[0]
@@ -124,7 +117,7 @@ def create_val_subgraph(data):
         edges_dsts_mask = prep_edges_mask(edges_dsts, node_dst_mask, node_dst)
 
         edges_masked = extract_edges(edge_indices, edges_srcs_mask, edges_dsts_mask)
-        if edges_masked:
+        if edges_masked.nelement() != 0:
             subgraph[edge_type].edge_index = edges_masked
 
     return subgraph
