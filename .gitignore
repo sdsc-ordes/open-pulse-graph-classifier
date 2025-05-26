@@ -3,6 +3,7 @@
 
 # Ignore data folders
 open-pulse-graph-classifier/data/*
+!.gitkeep
 
 # Python cache
 *.pyc

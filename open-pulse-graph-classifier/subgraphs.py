@@ -41,7 +41,6 @@ def create_train_subgraph(data):
 
     # Filter edges: Keep only edges where both nodes are in the set
     for edge_type in data.edge_types:
-        print(edge_type)
         src_type, _, dst_type = edge_type
         edge_indices = data[edge_type].edge_index
         edges_srcs = edge_indices[0]
@@ -72,7 +71,6 @@ def create_test_subgraph(data):
 
     # Filter edges: Keep only edges where both nodes are in the set
     for edge_type in data.edge_types:
-        print(edge_type)
         src_type, _, dst_type = edge_type
         edge_indices = data[edge_type].edge_index
         edges_srcs = edge_indices[0]
@@ -104,7 +102,6 @@ def create_val_subgraph(data):
 
     # Filter edges: Keep only edges where both nodes are in the set
     for edge_type in data.edge_types:
-        print(edge_type)
         src_type, _, dst_type = edge_type
         edge_indices = data[edge_type].edge_index
         edges_srcs = edge_indices[0]

@@ -34,10 +34,14 @@ def split_data(data, batch_size=128):
     subgraph_test = create_test_subgraph(data)
     subgraph_val = create_val_subgraph(data)
 
+    print("Subgraph Train:")
     print(subgraph_train)
+    print("Subgraph Test:")
     print(subgraph_test)
+    print("Subgraph Val:")
     print(subgraph_val)
 
+    print("Train Loader Created")
     train_loaders = {
         node_type: NeighborLoader(
             subgraph_train,
@@ -50,6 +54,7 @@ def split_data(data, batch_size=128):
         if subgraph_train[node_type].train_mask.nelement() > 0
     }
 
+    print("Test Loader Created")
     test_loaders = {
         node_type: NeighborLoader(
             subgraph_test,
@@ -62,6 +67,7 @@ def split_data(data, batch_size=128):
         if subgraph_test[node_type].test_mask.nelement() > 0
     }
 
+    print("Validation Loader Created")
     val_loaders = {
         node_type: NeighborLoader(
             subgraph_val,

@@ -20,19 +20,19 @@ if __name__ == "__main__":
         # split data
         train_loaders, test_loaders, val_loaders = split_data(data)
 
-        # # create model
-        # model_supervised = GNN(hidden_channels=64, out_channels=2)
-        # model_supervised_hetero = to_hetero(
-        #     model_supervised, data.metadata(), aggr="sum"
-        # )
+        # create model
+        model_supervised = GNN(hidden_channels=64, out_channels=2)
+        model_supervised_hetero = to_hetero(
+            model_supervised, data.metadata(), aggr="sum"
+        )
 
-        # # train model
-        # n_epochs = 100
-        # # try to change cuda to mps
-        # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        # model = model_supervised_hetero.to(device)
-        # optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
-        # loss = train(train_loaders, device, model, optimizer, n_epochs)
+        # train model
+        n_epochs = 100
+        # try to change cuda to mps
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        model = model_supervised_hetero.to(device)
+        optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
+        loss = train(train_loaders, device, model, optimizer, n_epochs)
 
         # # evaluate model
         # results = evaluate(test_loaders, device, model)
