@@ -33,15 +33,14 @@ if __name__ == "__main__":
 
         # # train model
         n_epochs = 100
-        # try to change cuda to mps
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model = model_supervised_hetero.to(device)
         optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
         loss = train(train_loader, device, model, optimizer, n_epochs)
 
-        # # evaluate model
-        # results = evaluate(test_loader, device, model)
-        # for node_type in data.node_types:
-        #     print(
-        #         f"Node Type {node_type} has accuracy of {results[node_type]['accuracy']} and AUC score of {results[node_type]['roc_auc']}"
-        #     )
+        # evaluate model
+        results = evaluate(test_loader, device, model)
+        for node_type in data.node_types:
+            print(
+                f"Node Type {node_type} has accuracy of {results[node_type]['accuracy']} and AUC score of {results[node_type]['roc_auc']}"
+            )
