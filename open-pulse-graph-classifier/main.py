@@ -6,7 +6,7 @@ from torch_geometric.nn import to_hetero
 from data_extraction import load_saved_data, extract_data
 from data_transformer import data_transformer
 from models.supervised import GNN
-from loader import split_data
+from loaders import split_data
 from train_eval import train, evaluate
 
 if __name__ == "__main__":
