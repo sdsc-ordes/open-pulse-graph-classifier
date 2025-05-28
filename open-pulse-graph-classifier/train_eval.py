@@ -3,15 +3,15 @@ import torch.nn.functional as F
 from sklearn.metrics import roc_auc_score
 
 
-def train(train_loaders, device, model, optimizer, n_epochs):
+def train(train_loader, device, model, optimizer, n_epochs):
     """
-    Train function that supports multiple train_loaders (one per node type) for multiple epochs.
+    Train function that supports multiple train_loader (one per node type) for multiple epochs.
 
     Args:
         model: The GNN model.
         optimizer: Optimizer (e.g., Adam).
         device: Device (CPU/GPU).
-        train_loaders: Dictionary of DataLoaders, one per node type.
+        train_loader: Dictionary of DataLoaders, one per node type.
         n_epochs (int): Number of training epochs.
 
     Returns:
@@ -24,11 +24,10 @@ def train(train_loaders, device, model, optimizer, n_epochs):
         total_loss = 0
         total_batches = 0
 
-        for node_type, loader in train_loaders.items():
+        for node_type, loader in train_loader.items():
             for batch in loader:
                 optimizer.zero_grad()
                 batch = batch.to(device)
-                print(batch.edge_index_dict)
                 out = model(batch.x_dict, batch.edge_index_dict)
 
                 # Compute loss for the current node type
@@ -49,12 +48,12 @@ def train(train_loaders, device, model, optimizer, n_epochs):
 
 
 @torch.no_grad()
-def evaluate(loaders, device, model):
+def evaluate(loader, device, model):
     """
     Evaluates model accuracy and AUC-ROC per node type.
 
     Args:
-        loaders (dict): A dictionary of DataLoaders, one per node type.
+        loader (dict): A dictionary of DataLoaders, one per node type.
         model: The trained GNN model.
         device: The device (CPU/GPU).
 
@@ -64,7 +63,7 @@ def evaluate(loaders, device, model):
     model.eval()
     results = {}
 
-    for node_type, loader in loaders.items():
+    for node_type, loader in loader.items():
         correct, total = 0, 0
         all_preds, all_labels = [], []
 

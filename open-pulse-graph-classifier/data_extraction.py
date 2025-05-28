@@ -9,7 +9,9 @@ load_dotenv()  # Load environment variables from .env file
 
 def load_saved_data():
     try:
-        data = torch.load("open-pulse-graph-classifier/data/heteoro_data.pt")
+        data = torch.load(
+            "open-pulse-graph-classifier/data/heteoro_data.pt", weights_only=False
+        )
         return data
     except FileNotFoundError:
         print("No saved data found. Extracting data from Neo4j.")
@@ -53,7 +55,7 @@ def extract_data():
 
         data = create_heterogenous_data(nodes_ids, edges_indices, relationships)
         data = add_labels(data, 1)
-        torch.save(data, "open-pulse-graph-classifier/data/heteoro_data.pt")
+        # torch.save(data, "open-pulse-graph-classifier/data/heteoro_data.pt")
         return data
     finally:
         downloader.close()
