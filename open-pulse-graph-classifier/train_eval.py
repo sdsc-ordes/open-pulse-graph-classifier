@@ -17,7 +17,6 @@ def train(train_loader, device, model, optimizer, n_epochs):
             batch = batch.to(device)
 
             out = model(batch.x_dict, batch.edge_index_dict)
-            print("OUT:", out)
             loss = 0
             for node_type in batch.y_dict:
                 if node_type in out:
@@ -65,11 +64,12 @@ def evaluate(loader, device, model):
 
         with torch.no_grad():
             out = model(batch.x_dict, batch.edge_index_dict)
-            print("OUT:", out)
+            print("BATCH:", batch.node_types)
+            print("OUT:", out.keys())
             for node_type in batch.node_types:
                 if node_type not in out or node_type not in batch:
                     continue
-
+                print("Processing correct and total for node type:", node_type)
                 logits = out[node_type]  # [N_nodes, n_classes]
                 labels = batch[node_type].y
 
