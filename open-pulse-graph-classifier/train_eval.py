@@ -20,7 +20,6 @@ def train(train_loader, device, model, optimizer, n_epochs):
             loss = 0
             for node_type in batch.y_dict:
                 if node_type in out:
-                    print("adding loss")
                     loss += F.cross_entropy(out[node_type], batch[node_type].y)
 
             loss.backward()
@@ -64,10 +63,8 @@ def evaluate(loader, device, model):
 
         with torch.no_grad():
             out = model(batch.x_dict, batch.edge_index_dict)
-            print("BATCH:", batch.node_types)
-            print("OUT:", out.keys())
             for node_type in batch.node_types:
-                if node_type not in out or node_type not in batch:
+                if node_type not in out or node_type not in batch.node_types:
                     continue
                 print("Processing correct and total for node type:", node_type)
                 logits = out[node_type]  # [N_nodes, n_classes]
