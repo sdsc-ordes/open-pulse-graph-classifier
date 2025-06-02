@@ -40,7 +40,8 @@ if __name__ == "__main__":
 
         # evaluate model
         results = evaluate(test_loader, device, model)
-        for node_type in data.node_types:
-            print(
-                f"Node Type {node_type} has accuracy of {results[node_type]['accuracy']} and AUC score of {results[node_type]['roc_auc']}"
-            )
+        print(results)
+        # for node_type in data.node_types:
+        #     print(
+        #         f"Node Type {node_type} has accuracy of {results[node_type]['accuracy']} and AUC score of {results[node_type]['roc_auc']}"
+        #     )
