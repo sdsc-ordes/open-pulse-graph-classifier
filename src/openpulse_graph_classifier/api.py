@@ -1,11 +1,32 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from jose import JWTError, jwt
+from dotenv import load_dotenv
 import torch
+import os
 
 from openpulse_graph_classifier.data_extraction import extract_data
 from openpulse_graph_classifier.data_transformer import data_transformer
 from openpulse_graph_classifier.train_eval import evaluate
 
 app = FastAPI()
+
+security = HTTPBearer()
+
+load_dotenv()
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM")
+
+
+def verify_jwt(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    token = credentials.credentials
+    try:
+        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+        if payload.get("service") != "airflow":
+            raise HTTPException(status_code=403, detail="Invalid service identity")
+        return payload
+    except JWTError:
+        raise HTTPException(status_code=403, detail="Invalid token")
 
 
 @app.get("/test")
@@ -14,7 +35,7 @@ async def test():
 
 
 @app.get("/inference/{neo4j_database}")
-async def do_inference(neo4j_database: str):
+async def do_inference(neo4j_database: str, token_data: dict = Depends(verify_jwt)):
     extracted_data = extract_data(neo4j_database)
     transformed_data = data_transformer(extracted_data)
     # need to add a step to format data
