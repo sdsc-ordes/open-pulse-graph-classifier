@@ -9,6 +9,11 @@ from train_eval import evaluate
 app = FastAPI()
 
 
+@app.get("/test")
+async def test():
+    return {"message": "Test endpoint is working!"}
+
+
 @app.get("/inference/{neo4j_database}")
 async def do_inference(neo4j_database: str):
     extracted_data = extract_data(neo4j_database)
