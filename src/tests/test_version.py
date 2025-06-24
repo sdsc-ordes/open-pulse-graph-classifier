@@ -1,6 +1,6 @@
 import re
 
-from open_pulse_graph_classifier import __version__
+from openpulse_graph_classifier import __version__
 
 
 SEMVER_REGEX = re.compile(
