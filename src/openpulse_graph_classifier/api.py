@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 import torch
 
-from data_extraction import extract_data
-from data_transformer import data_transformer
-from train_eval import evaluate
+from openpulse_graph_classifier.data_extraction import extract_data
+from openpulse_graph_classifier.data_transformer import data_transformer
+from openpulse_graph_classifier.train_eval import evaluate
 
 app = FastAPI()
 
