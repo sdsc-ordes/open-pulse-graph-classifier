@@ -18,11 +18,11 @@ def load_saved_data():
         return None
 
 
-def extract_data():
+def extract_data(neo4j_database=None):
     NEO4J_URI = os.environ.get("NEO4J_URI")
-    NEO4J_DATABASE = os.environ.get("NEO4J_DATABASE")
     NEO4J_USERNAME = os.environ.get("NEO4J_USER")
     NEO4J_PASSWORD = os.environ.get("NEO4J_PASSWORD")
+    NEO4J_DATABASE = neo4j_database
 
     nodes = ["user", "repo", "org"]
     relationships = {

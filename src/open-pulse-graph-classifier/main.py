@@ -12,7 +12,8 @@ from train_eval import train, evaluate
 if __name__ == "__main__":
     data = load_saved_data()
     if not data:
-        data = extract_data()
+        neo4j_database = "neo4j"
+        data = extract_data(neo4j_database)
 
     if data:
         # transform data
