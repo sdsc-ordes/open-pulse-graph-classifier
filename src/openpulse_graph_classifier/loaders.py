@@ -3,7 +3,11 @@ from torch_geometric.loader import NeighborLoader
 from torch_geometric.data import HeteroData
 from sklearn.model_selection import train_test_split
 import numpy as np
-from subgraphs import create_train_subgraph, create_test_subgraph, create_val_subgraph
+from openpulse_graph_classifier.subgraphs import (
+    create_train_subgraph,
+    create_test_subgraph,
+    create_val_subgraph,
+)
 
 
 def split_data(data, batch_size=128):

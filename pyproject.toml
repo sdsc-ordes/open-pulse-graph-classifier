@@ -1,5 +1,5 @@
 [project]
-name = "torchgeometric"
+name = "openpulse_classifier"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -83,3 +83,6 @@ explicit = true
 dev = [
     "pytest>=8.4.1",
 ]
+
+[tool.pytest.ini_options]
+pythonpath = ["src/"]

@@ -1,6 +1,9 @@
 import torch
-from neo4jdownloader import Neo4JDownloader
-from data_processor import create_heterogenous_data, add_labels
+from openpulse_graph_classifier.neo4jdownloader import Neo4JDownloader
+from openpulse_graph_classifier.data_processor import (
+    create_heterogenous_data,
+    add_labels,
+)
 from dotenv import load_dotenv
 import os
 
