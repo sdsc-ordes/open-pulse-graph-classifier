@@ -29,18 +29,28 @@ COPY --from=ghcr.io/astral-sh/uv:0.6.12 /uv /uvx /bin/
 
 
 # Copy the project into the image
-ADD . /app
+ADD openpulse-graph-classifier/inference /app/inference
+ADD openpulse-graph-classifier/processing /app/processing
+ADD openpulse-graph-classifier/neo4j /app/neo4j
+ADD openpulse-graph-classifier/api /app/api
 
 # Sync the project into a new environment, using the frozen lockfile
 WORKDIR /app
 
 # Define the build argument with a default value of an empty string (optional)
 RUN uv venv --python 3.12
+# Torch related
 RUN uv pip install setuptools
 RUN uv pip install torch==2.5.0 --index-url https://download.pytorch.org/whl/cu124
 RUN uv pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.5.0+cu124.html
 RUN uv pip install torch-geometric
+# Others
 RUN uv pip install neo4j scikit-learn python-dotenv
+# API related
+RUN uv pip install fastapi uvicorn
+RUN uv pip install python-jose[cryptography]
+# Hugging face related
+RUN uv pip install huggingface_hub
 #RUN uv sync ${UV_ARGUMENTS}
 
 # make uv's python the default python for the image

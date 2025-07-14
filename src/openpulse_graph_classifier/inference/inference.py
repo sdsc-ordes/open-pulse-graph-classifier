@@ -4,27 +4,15 @@ from huggingface_hub import hf_hub_download
 import json
 
 
-from openpulse_graph_classifier.data_extraction import get_downloader, extract_data
-from openpulse_graph_classifier.data_transformer import data_transformer
-from openpulse_graph_classifier.predictions_process import get_probs_preds
-
-
-def get_node_name(node_id, node_type, downloader):
-    with open("open-pulse-graph-classifier/data/local_to_global.json", "r") as fp:
-        local_to_global = json.load(fp)
-    global_id = local_to_global[node_type][node_id]
-    name = downloader.get_node_name_by_id(global_id)
-    return name
-
-
-def get_nodes(nodes, node_type, probs, threshold, downloader):
-    positive_output = {}
-    for prob in probs:
-        if prob >= threshold:
-            node_id = nodes[probs.index(prob)]
-            node_name = get_node_name(node_id, node_type, downloader)
-            positive_output.update({node_name: prob})
-    return positive_output
+from openpulse_graph_classifier.processing.data_extraction import (
+    get_downloader,
+    extract_data,
+)
+from openpulse_graph_classifier.processing.data_transformer import data_transformer
+from openpulse_graph_classifier.processing.postprocessing import (
+    get_probs_preds,
+    get_positive_output,
+)
 
 
 @torch.no_grad()
@@ -68,7 +56,7 @@ def inference(neo4j_database):
                 logits = out[node_type]  # [N_nodes, n_classes]
                 _, probs = get_probs_preds(logits)
                 output[node_type].update(
-                    get_nodes(
+                    get_positive_output(
                         batch.x_dict[node_type], node_type, probs, threshold, downloader
                     )
                 )

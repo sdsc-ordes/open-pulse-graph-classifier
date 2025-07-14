@@ -4,11 +4,11 @@ from torch_geometric.nn import to_hetero
 from huggingface_hub import HfApi
 
 
-from openpulse_graph_classifier.data_extraction import load_saved_data, extract_data
-from openpulse_graph_classifier.data_transformer import data_transformer
+from openpulse_graph_classifier.processing.data_extraction import extract_data
+from openpulse_graph_classifier.processing.data_transformer import data_transformer
 from openpulse_graph_classifier.models.supervised import GNN
-from openpulse_graph_classifier.loaders import split_data
-from openpulse_graph_classifier.train_eval import train, evaluate
+from openpulse_graph_classifier.train.loaders import split_data
+from openpulse_graph_classifier.train.train_eval import train, evaluate
 
 if __name__ == "__main__":
     neo4j_database = "neo4j"

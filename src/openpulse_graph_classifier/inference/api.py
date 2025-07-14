@@ -5,9 +5,7 @@ from dotenv import load_dotenv
 import torch
 import os
 
-from openpulse_graph_classifier.data_extraction import extract_data
-from openpulse_graph_classifier.data_transformer import data_transformer
-from openpulse_graph_classifier.inference import inference
+from openpulse_graph_classifier.inference.inference import inference
 
 app = FastAPI()
 
@@ -29,13 +27,13 @@ def verify_jwt(credentials: HTTPAuthorizationCredentials = Depends(security)):
         raise HTTPException(status_code=403, detail="Invalid token")
 
 
-@app.get("/test")
+@app.get("/v1/test")
 async def test():
     return {"message": "Test endpoint is working!"}
 
 
-@app.get("/inference/{neo4j_database}")
+@app.get("/v1/inference/epfl/{neo4j_database}")
 async def do_inference(neo4j_database: str, token_data: dict = Depends(verify_jwt)):
     output = inference(neo4j_database)
     # should the predictions be returned in the response or should it be saved to NEO4J or something?
-    return {"output": output}
+    return {"data": output}

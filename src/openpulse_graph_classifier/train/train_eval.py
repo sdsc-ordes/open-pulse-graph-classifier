@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F
 from sklearn.metrics import roc_auc_score
 
-from openpulse_graph_classifier.predictions_process import get_probs_preds
+from openpulse_graph_classifier.processing.postprocessing import get_probs_preds
 
 
 def train(train_loader, device, model, optimizer, n_epochs):
