@@ -32,7 +32,6 @@ COPY --from=ghcr.io/astral-sh/uv:0.6.12 /uv /uvx /bin/
 ADD openpulse-graph-classifier/inference /app/inference
 ADD openpulse-graph-classifier/processing /app/processing
 ADD openpulse-graph-classifier/neo4j /app/neo4j
-ADD openpulse-graph-classifier/api /app/api
 
 # Sync the project into a new environment, using the frozen lockfile
 WORKDIR /app
