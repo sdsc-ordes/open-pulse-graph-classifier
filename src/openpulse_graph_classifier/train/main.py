@@ -11,6 +11,7 @@ from openpulse_graph_classifier.train.loaders import split_data
 from openpulse_graph_classifier.train.train_eval import train, evaluate
 
 if __name__ == "__main__":
+    # TO-DO remove hard coded. add an env variable?
     neo4j_database = "neo4j"
     data = extract_data(neo4j_database)
 
