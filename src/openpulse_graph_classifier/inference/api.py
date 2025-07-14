@@ -29,11 +29,23 @@ def verify_jwt(credentials: HTTPAuthorizationCredentials = Depends(security)):
 
 @app.get("/v1/test")
 async def test():
-    return {"message": "Test endpoint is working!"}
+    return {
+        "data": {
+            "type": "test",
+            "id": "1",
+            "attributes": {"message": "Test endpoint is working!"},
+        }
+    }
 
 
 @app.get("/v1/inference/epfl/{neo4j_database}")
 async def do_inference(neo4j_database: str, token_data: dict = Depends(verify_jwt)):
     output = inference(neo4j_database)
     # should the predictions be returned in the response or should it be saved to NEO4J or something?
-    return {"data": output}
+    return {
+        "data": {
+            "type": "inference",
+            "id": neo4j_database,
+            "attributes": {"results": output},
+        }
+    }

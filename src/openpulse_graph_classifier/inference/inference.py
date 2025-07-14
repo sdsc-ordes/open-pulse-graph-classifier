@@ -35,6 +35,7 @@ def inference(neo4j_database):
     model.eval()
 
     # inference
+    # TO-DO: threshold should become a parameter in the future
     threshold = 0.75
     inference_loader = NeighborLoader(
         transformed_data,
