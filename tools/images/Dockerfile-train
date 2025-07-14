@@ -29,9 +29,9 @@ COPY --from=ghcr.io/astral-sh/uv:0.6.12 /uv /uvx /bin/
 
 
 # Copy the project into the image
-ADD openpulse_graph_classifier/train /app/train
-ADD openpulse_graph_classifier/processing /app/processing
-ADD openpulse_graph_classifier/neo4j /app/neo4j
+ADD src/openpulse_graph_classifier/train /app/train
+ADD src/openpulse_graph_classifier/processing /app/processing
+ADD src/openpulse_graph_classifier/neo4j /app/neo4j
 
 # Sync the project into a new environment, using the frozen lockfile
 WORKDIR /app
