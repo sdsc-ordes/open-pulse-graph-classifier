@@ -2,6 +2,8 @@ import torch
 from torch_geometric.data import HeteroData
 import json
 
+from sklearn.feature_extraction import DictVectorizer
+
 
 def global_local_matcher(nodes_ids):
     global_to_local = {}
@@ -26,8 +28,6 @@ def save_index_mapping(global_to_local, local_to_global):
 
 
 def vectorize_features(features):
-    from sklearn.feature_extraction import DictVectorizer
-
     # TO-DO: come back and see if this is the right way to vectorize features
     # is this correct or do we need to save it to use the same all the time?
     # is this the right technique?
