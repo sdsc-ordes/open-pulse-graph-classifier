@@ -7,7 +7,7 @@ import os
 
 from openpulse_graph_classifier.data_extraction import extract_data
 from openpulse_graph_classifier.data_transformer import data_transformer
-from openpulse_graph_classifier.train_eval import evaluate
+from openpulse_graph_classifier.inference import inference
 
 app = FastAPI()
 
@@ -36,12 +36,6 @@ async def test():
 
 @app.get("/inference/{neo4j_database}")
 async def do_inference(neo4j_database: str, token_data: dict = Depends(verify_jwt)):
-    extracted_data = extract_data(neo4j_database)
-    transformed_data = data_transformer(extracted_data)
-    # need to add a step to format data
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    loaded_model = torch.load("open-pulse-graph-classifier/models/supervised_hetero.pt")
-    model = loaded_model.to(device)
-    output = evaluate(transformed_data, device, model)
+    output = inference(neo4j_database)
     # should the predictions be returned in the response or should it be saved to NEO4J or something?
     return {"output": output}

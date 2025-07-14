@@ -2,6 +2,8 @@ import torch
 import torch.nn.functional as F
 from sklearn.metrics import roc_auc_score
 
+from openpulse_graph_classifier.predictions_process import get_probs_preds
+
 
 def train(train_loader, device, model, optimizer, n_epochs):
     print("Training")
@@ -70,13 +72,12 @@ def evaluate(loader, device, model):
                 logits = out[node_type]  # [N_nodes, n_classes]
                 labels = batch[node_type].y
 
-                preds = logits.argmax(dim=1)
+                preds, probs = get_probs_preds(logits)
+
                 correct[node_type] = (
                     correct.get(node_type, 0) + (preds == labels).sum().item()
                 )
                 total[node_type] = total.get(node_type, 0) + labels.size(0)
-
-                probs = F.softmax(logits, dim=1)[:, 1]  # Prob for class 1
 
                 all_preds.setdefault(node_type, []).append(probs.cpu())
                 all_labels.setdefault(node_type, []).append(labels.cpu())
@@ -101,98 +102,3 @@ def evaluate(loader, device, model):
         results[node_type] = {"accuracy": accuracy, "roc_auc": auc}
 
     return results
-
-
-# def train(train_loader, device, model, optimizer, n_epochs):
-#     """
-#     Train function that supports multiple train_loader (one per node type) for multiple epochs.
-
-#     Args:
-#         model: The GNN model.
-#         optimizer: Optimizer (e.g., Adam).
-#         device: Device (CPU/GPU).
-#         train_loader: Dictionary of DataLoaders, one per node type.
-#         n_epochs (int): Number of training epochs.
-
-#     Returns:
-#         list: List of average loss values for each epoch.
-#     """
-#     loss_per_epoch = []
-
-#     for epoch in range(n_epochs):
-#         model.train()
-#         total_loss = 0
-#         total_batches = 0
-
-#         for node_type, loader in train_loader.items():
-#             for batch in loader:
-#                 optimizer.zero_grad()
-#                 batch = batch.to(device)
-#                 out = model(batch.x_dict, batch.edge_index_dict)
-
-#                 # Compute loss for the current node type
-#                 if node_type in batch:
-#                     loss = F.cross_entropy(out, batch[node_type].y)
-#                     loss.backward()
-#                     optimizer.step()
-
-#                     total_loss += loss.item()
-#                     total_batches += 1
-
-#         avg_loss = total_loss / total_batches if total_batches > 0 else 0
-#         loss_per_epoch.append(avg_loss)
-
-#         print(f"Epoch {epoch + 1}/{n_epochs}, Loss: {avg_loss:.4f}")
-
-#     return loss_per_epoch
-
-
-# def evaluate(loader, device, model):
-#     """
-#     Evaluates model accuracy and AUC-ROC per node type.
-
-#     Args:
-#         loader (dict): A dictionary of DataLoaders, one per node type.
-#         model: The trained GNN model.
-#         device: The device (CPU/GPU).
-
-#     Returns:
-#         dict: Dictionary with accuracy and AUC-ROC per node type.
-#     """
-#     model.eval()
-#     results = {}
-
-#     correct, total = 0, 0
-#     all_preds, all_labels = [], []
-
-#     for batch in loader:
-#         batch = batch.to(device)
-
-#         if node_type in batch:
-#             out = model(batch.x_dict, batch.edge_index_dict)
-#             pred = out.argmax(dim=1)
-#             y_true = batch[node_type].y
-
-#             correct += (pred == y_true).sum().item()
-#             total += y_true.size(0)
-
-#             all_preds.append(
-#                 out.softmax(dim=1).cpu()
-#             )  # Convert logits to probabilities
-#             all_labels.append(y_true.cpu())
-
-#     # Compute accuracy
-#     accuracy = correct / total if total > 0 else 0
-
-#     if total > 1:
-#         all_preds = torch.cat(all_preds, dim=0).numpy()
-#         all_labels = torch.cat(all_labels, dim=0).numpy()
-#         auc = roc_auc_score(
-#             all_labels, all_preds, multi_class="ovr"
-#         )  # One-vs-Rest AUC for multi-class
-#     else:
-#         auc = None
-
-#     results[node_type] = {"accuracy": accuracy, "roc_auc": auc}
-
-#     return results

@@ -16,3 +16,5 @@ torch-geometric
 fastapi
 
 python-jose[cryptography]
+
+huggingface_hub

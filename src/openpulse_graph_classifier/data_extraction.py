@@ -21,11 +21,17 @@ def load_saved_data():
         return None
 
 
-def extract_data(neo4j_database=None):
+def get_downloader(neo4j_database):
     NEO4J_URI = os.environ.get("NEO4J_URI")
     NEO4J_USERNAME = os.environ.get("NEO4J_USER")
     NEO4J_PASSWORD = os.environ.get("NEO4J_PASSWORD")
     NEO4J_DATABASE = neo4j_database
+
+    return Neo4JDownloader(NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD, NEO4J_DATABASE)
+
+
+def extract_data(neo4j_database=None):
+    downloader = get_downloader(neo4j_database)
 
     nodes = ["user", "repo", "org"]
     relationships = {
@@ -43,10 +49,6 @@ def extract_data(neo4j_database=None):
             "type1": {"source": "org", "target": "repo"},
         },
     }
-
-    downloader = Neo4JDownloader(
-        NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD, NEO4J_DATABASE
-    )
 
     try:
         # downloader.retrieve_all()
