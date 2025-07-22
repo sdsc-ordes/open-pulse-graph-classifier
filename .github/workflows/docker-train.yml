@@ -73,7 +73,7 @@ jobs:
 
       - name: lowercase image name
         run: |
-          echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
+          echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}-train" >> ${GITHUB_ENV}
 
       # https://github.com/docker/setup-qemu-action
       - name: Set up QEMU
