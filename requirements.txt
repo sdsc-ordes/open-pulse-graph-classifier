@@ -1,9 +1,7 @@
-# -e .
-#--extra-index-url https://download.pytorch.org/whl/cu121
-
-neo4j
 pre-commit
 ruff
+
+neo4j
 
 dotenv
 
@@ -14,3 +12,9 @@ setuptools
 torch
 # torch-sparse
 torch-geometric
+
+fastapi
+
+python-jose[cryptography]
+
+huggingface_hub

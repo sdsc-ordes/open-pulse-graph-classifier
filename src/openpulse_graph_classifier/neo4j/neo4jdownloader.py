@@ -39,6 +39,22 @@ class Neo4JDownloader:
             logging.error("%s raised an error: \n%s", query, exception)
             raise
 
+    def get_node_name_by_id(self, driver, node_id):
+        query = f"""
+        MATCH (n)
+        WHERE ID(n) = {node_id}
+        RETURN n.name AS name
+        """
+        try:
+            result = driver.run(query).single()
+            if result:
+                return result["name"]
+            else:
+                return None
+        except (DriverError, Neo4jError) as exception:
+            logging.error("%s raised an error: \n%s", query, exception)
+            raise
+
     def get_edges(self, driver, src_label, rel_type, dst_label):
         query = f"""
         MATCH (a:{src_label})-[r:`{rel_type}`]->(b:{dst_label})

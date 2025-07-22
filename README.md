@@ -35,7 +35,7 @@ python open-pulse-graph-classifier/main.py
 ```
 source .venv/bin/activate
 uv pip install -r requirements.txt
-python open-pulse-graph-classifier/main.py
+python src/openpulse_graph_classifier/main.py
 ```
 
 ### RunAI

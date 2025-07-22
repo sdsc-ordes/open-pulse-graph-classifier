@@ -2,14 +2,7 @@ import torch
 from torch_geometric.data import HeteroData
 import json
 
-
-def create_tensor_matrix(array1, array2):
-    # +1 to match the index augmentation of 1 of the nodes
-    # to avoid having a zero index node
-    tensor1 = torch.tensor(array1 + 1)
-    tensor2 = torch.tensor(array2 + 1)
-    tensor_matrix = torch.stack((tensor1, tensor2))
-    return tensor_matrix
+from sklearn.feature_extraction import DictVectorizer
 
 
 def global_local_matcher(nodes_ids):
@@ -34,16 +27,29 @@ def save_index_mapping(global_to_local, local_to_global):
         json.dump(local_to_global, fp)
 
 
-def create_heterogenous_data(nodes_ids, edges_indices, relationships):
+def vectorize_features(features):
+    # TO-DO: come back and see if this is the right way to vectorize features
+    # is this correct or do we need to save it to use the same all the time?
+    # is this the right technique?
+    vec = DictVectorizer()
+    features_vectorized = vec.fit_transform(features).toarray()
+    return features_vectorized
+
+
+def create_heterogenous_data(nodes_ids, nodes_features, edges_indices, relationships):
     data = HeteroData()
 
     global_to_local, local_to_global, local_node_counts = global_local_matcher(
         nodes_ids
     )
     save_index_mapping(global_to_local, local_to_global)
+
     for node_type in nodes_ids.keys():
+        vectorized_features = vectorize_features(nodes_features[node_type])
         local_ids = list(range(local_node_counts[node_type]))
-        x = torch.tensor(local_ids).unsqueeze(1).float()  # or use your real features
+        ids = torch.tensor(local_ids).unsqueeze(1).float()  # [num_nodes, 1]
+        features = torch.tensor(vectorized_features).float()  # [num_nodes, feature_dim]
+        x = torch.cat([ids, features], dim=1)
         data[node_type].x = x
 
     for rel_type, subdict in edges_indices.items():
@@ -57,21 +63,6 @@ def create_heterogenous_data(nodes_ids, edges_indices, relationships):
 
             edge_index_tensor = torch.tensor([src_ids, dst_ids], dtype=torch.long)
             data[(source, rel_type.lower(), target)].edge_index = edge_index_tensor
-
-    # for key, val in nodes_ids.items():
-    #     # +1 augmentation of the indices of the nodes to avoid having a zero index node
-    #     data[key].x = torch.Tensor([v + 1 for v in val])
-
-    # for relationship, subdict in relationships.items():
-    #     for type, definition in subdict.items():
-    #         source = definition["source"]
-    #         target = definition["target"]
-    #         # if that relationship exists in the graph
-    #         if len(edges_indices[relationship][type]) > 0:
-    #             data[source, relationship, target].edge_index = create_tensor_matrix(
-    #                 edges_indices[relationship][type][0],
-    #                 edges_indices[relationship][type][1],
-    #             )
     return data
 
 
@@ -81,15 +72,3 @@ def add_labels(data, label):
         num_nodes = data[node_type].x.shape[0]
         data[node_type].y = torch.tensor([label] * num_nodes)
     return data
-
-
-# from sklearn import preprocessing
-# features are strings, they need to be encoded
-# label_encoder = preprocessing.LabelEncoder()
-# nodes_features_encoded = {}
-# for node, features in nodes_features.items():
-#     nodes_features_encoded[node] = encode(label_encoder, features)
-# def encode(label_encoder, feat_string):
-#      # feat_String is a list of strings
-#     feat_encoded = label_encoder.fit_transform(feat_string)
-#     return feat_encoded
