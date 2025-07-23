@@ -40,9 +40,31 @@ python src/openpulse_graph_classifier/main.py
 
 ### RunAI
 
+#### Training
+
 ```
 runai config project <your project>
-runai submit openpulse -i ghcr.io/sdsc-ordes/open-pulse-graph-classifier:latest --gpu 0.02  --attach
+```
+
+```
+runai training submit openpulse-training \
+    -i ghcr.io/sdsc-ordes/open-pulse-graph-classifier-training:latest \
+    --gpu 0.02 \
+    --attach
+```
+
+#### Inference
+
+```
+runai inference submit openpulse-inference \
+  -p openpulse-laure \
+  -i ghcr.io/sdsc-ordes/open-pulse-graph-classifier-inference:latest \
+  --serving-port=8000 \
+  --min-replicas=0 \
+  --max-replicas=1 \
+  --scale-down-delay-seconds 3600 \
+  --image-pull-policy Always \
+  -c -- python open-pulse-graph-classifier/inference/api.py
 ```
 
 (where `openpulse` is the job name, change according to your needs.)
