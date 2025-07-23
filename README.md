@@ -26,8 +26,17 @@ docker run -it openpulse
 ```
 
 Inside docker:
+
+for training
+
 ```
-python open-pulse-graph-classifier/main.py
+python open-pulse-graph-classifier/inference/api.py
+```
+
+for inference
+
+```
+python open-pulse-graph-classifier/train/main.py
 ```
 
 ### Local dev
@@ -50,6 +59,7 @@ runai config project <your project>
 runai training submit openpulse-training \
     -i ghcr.io/sdsc-ordes/open-pulse-graph-classifier-training:latest \
     --gpu 0.02 \
+    --interactive \
     --attach
 ```
 
