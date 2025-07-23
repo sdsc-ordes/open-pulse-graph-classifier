@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from openpulse_graph_classifier.inference.api import app
+from inference_api import app
 
 client = TestClient(app)
 

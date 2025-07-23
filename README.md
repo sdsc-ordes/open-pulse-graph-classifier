@@ -74,7 +74,7 @@ runai inference submit openpulse-inference \
   --max-replicas=1 \
   --scale-down-delay-seconds 3600 \
   --image-pull-policy Always \
-  -c -- python open-pulse-graph-classifier/inference/api.py
+  -c -- python inference_api.py
 ```
 
 (where `openpulse` is the job name, change according to your needs.)

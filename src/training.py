@@ -4,11 +4,11 @@ from torch_geometric.nn import to_hetero
 from huggingface_hub import HfApi
 
 
-from openpulse_graph_classifier.processing.data_extraction import extract_data
-from openpulse_graph_classifier.processing.data_transformer import data_transformer
-from openpulse_graph_classifier.models.supervised import GNN
-from openpulse_graph_classifier.train.loaders import split_data
-from openpulse_graph_classifier.train.train_eval import train, evaluate
+from classifier.processing.data_extraction import extract_data
+from classifier.processing.data_transformer import data_transformer
+from classifier.models.supervised import GNN
+from classifier.train.loaders import split_data
+from classifier.train.train_eval import train, evaluate
 
 if __name__ == "__main__":
     # TO-DO remove hard coded. add an env variable?

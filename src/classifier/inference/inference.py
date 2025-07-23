@@ -4,12 +4,12 @@ from huggingface_hub import hf_hub_download
 import json
 
 
-from openpulse_graph_classifier.processing.data_extraction import (
+from classifier.processing.data_extraction import (
     get_downloader,
     extract_data,
 )
-from openpulse_graph_classifier.processing.data_transformer import data_transformer
-from openpulse_graph_classifier.processing.postprocessing import (
+from classifier.processing.data_transformer import data_transformer
+from classifier.processing.postprocessing import (
     get_probs_preds,
     get_positive_output,
 )

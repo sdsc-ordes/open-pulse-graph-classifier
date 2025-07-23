@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import torch
 import os
 
-from openpulse_graph_classifier.inference.inference import inference
+from classifier.inference.inference import inference
 
 app = FastAPI()
 
