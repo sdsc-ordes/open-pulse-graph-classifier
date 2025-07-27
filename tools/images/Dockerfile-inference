@@ -59,7 +59,7 @@ ENV PATH="/app/.venv/bin:$PATH"
 # Set PYTHONPATH so "classifier" is importable
 ENV PYTHONPATH=/app
 
-#ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["/bin/bash"]
 
 # Run your inference script
-CMD ["python", "/app/inference_api.py"]
+#CMD ["python", "/app/inference_api.py"]
