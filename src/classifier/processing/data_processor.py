@@ -66,6 +66,26 @@ def create_heterogenous_data(nodes_ids, nodes_features, edges_indices, relations
     return data
 
 
+def identify_anchors(data):
+    # we need to start from nodes_features and based on anchor / labels we make a mask in data.
+    # we need a train parameter so that in training we arbitrarily remove set as unknown a bunch of nodes while the other remain anchors
+    for ntype in data.node_types:
+        # raw property: 1=part of community, 0=not part of community, -1=unknown
+        # rework this:
+        labels = nodes_features.labels
+
+        # Anchor: must have valid label (0 or 1)
+        # is_anchor = (feat >= 0)
+
+        # Unknown = no label (y == -1)
+        is_unknown = feat == -1
+
+        # Save back into node store
+        data[ntype].y = y
+        data[ntype].is_anchor = is_anchor
+        data[ntype].is_unknown = is_unknown
+
+
 def add_labels(data, label):
     node_types, _ = data.metadata()
     for node_type in node_types:

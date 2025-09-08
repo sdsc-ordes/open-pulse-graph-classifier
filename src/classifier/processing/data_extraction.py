@@ -2,6 +2,7 @@ import torch
 from classifier.neo4j.neo4jdownloader import Neo4JDownloader
 from classifier.processing.data_processor import (
     create_heterogenous_data,
+    identify_anchors,
     add_labels,
 )
 from dotenv import load_dotenv
@@ -59,6 +60,7 @@ def extract_data(neo4j_database=None):
         # print(edges_indices)
 
         data = create_heterogenous_data(nodes_ids, edges_indices, relationships)
+        data = identify_anchors(data)
         data = add_labels(data, 1)
         # torch.save(data, "open-pulse-graph-classifier/data/heteoro_data.pt")
         return data

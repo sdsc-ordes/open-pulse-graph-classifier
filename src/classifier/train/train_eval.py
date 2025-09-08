@@ -14,27 +14,117 @@ def train(train_loader, device, model, optimizer, n_epochs):
         total_loss = 0
         total_batches = 0
 
-        for batch in train_loader:
-            optimizer.zero_grad()
+        criterion = torch.nn.BCEWithLogitsLoss()
+        steps = 0
+
+        for batch in loader:
             batch = batch.to(device)
+            optimizer.zero_grad()
+            logits_dict = model(batch.x_dict, batch.edge_index_dict)
 
-            out = model(batch.x_dict, batch.edge_index_dict)
             loss = 0
-            for node_type in batch.y_dict:
-                if node_type in out:
-                    loss += F.cross_entropy(out[node_type], batch[node_type].y)
+            for ntype in logits_dict.keys():
+                if hasattr(batch[ntype], "y") and hasattr(batch[ntype], "batch_size"):
+                    logits = logits_dict[ntype][: batch[ntype].batch_size].view(-1)
+                    y = batch[ntype].y[: batch[ntype].batch_size].float()
+                    loss = loss + criterion(logits, y)
 
-            loss.backward()
-            optimizer.step()
-
-            total_loss += loss.item()
-            total_batches += 1
-
-        avg_loss = total_loss / total_batches if total_batches > 0 else 0
-        loss_per_epoch.append(avg_loss)
-        print(f"Epoch {epoch + 1}/{n_epochs}, Loss: {avg_loss:.4f}")
+            if loss > 0:
+                loss.backward()
+                optimizer.step()
+                total_loss += loss.item()
+                steps += 1
+        epoch_loss = total_loss / max(steps, 1) if max(steps, 1) > 0 else 0
+        loss_per_epoch.append(epoch_loss)
+        print(f"Epoch {epoch + 1}/{n_epochs}, Loss: {epoch_loss:.4f}")
 
     return loss_per_epoch
+
+
+@torch.no_grad()
+def evaluate(val_loader, device, model):
+    model.eval()
+    criterion = torch.nn.BCEWithLogitsLoss()
+
+    total_loss = 0.0
+    steps = 0
+
+    all_probs = {ntype: [] for ntype in val_loader.data.node_types}
+    all_labels = {ntype: [] for ntype in val_loader.data.node_types}
+
+    for batch in val_loader:
+        batch = batch.to(device)
+        logits_dict = model(batch.x_dict, batch.edge_index_dict)
+
+        for ntype in logits_dict.keys():
+            if hasattr(batch[ntype], "y") and hasattr(batch[ntype], "batch_size"):
+                bs = batch[ntype].batch_size
+                if bs == 0:
+                    continue
+
+                logits = logits_dict[ntype][:bs].view(-1)
+                y = batch[ntype].y[:bs].float()
+
+                loss = criterion(logits, y)
+                total_loss += loss.item()
+                steps += 1
+
+                probs = torch.sigmoid(logits).cpu().numpy()
+                labels = y.cpu().numpy()
+                all_probs[ntype].append(probs)
+                all_labels[ntype].append(labels)
+
+    # Aggregate metrics
+    results = {}
+    for ntype in all_probs.keys():
+        if len(all_probs[ntype]) == 0:
+            continue
+        probs = np.concatenate(all_probs[ntype])
+        labels = np.concatenate(all_labels[ntype])
+        acc = accuracy_score(labels, (probs >= 0.5).astype(int))
+        try:
+            auc = roc_auc_score(labels, probs)
+        except ValueError:
+            auc = float("nan")  # e.g., if only one class present
+        results[ntype] = {"acc": acc, "auc": auc, "n": len(labels)}
+
+    avg_loss = total_loss / max(steps, 1)
+
+    return avg_loss, results
+
+
+# LEGACY
+
+# def train(train_loader, device, model, optimizer, n_epochs):
+#     print("Training")
+#     loss_per_epoch = []
+
+#     for epoch in range(n_epochs):
+#         model.train()
+#         total_loss = 0
+#         total_batches = 0
+
+#         for batch in train_loader:
+#             optimizer.zero_grad()
+#             batch = batch.to(device)
+
+#             out = model(batch.x_dict, batch.edge_index_dict)
+#             loss = 0
+#             for node_type in batch.y_dict:
+#                 if node_type in out:
+#                     loss += F.cross_entropy(out[node_type], batch[node_type].y)
+
+#             loss.backward()
+#             optimizer.step()
+
+#             total_loss += loss.item()
+#             total_batches += 1
+
+#         avg_loss = total_loss / total_batches if total_batches > 0 else 0
+#         loss_per_epoch.append(avg_loss)
+#         print(f"Epoch {epoch + 1}/{n_epochs}, Loss: {avg_loss:.4f}")
+
+#     return loss_per_epoch
 
 
 @torch.no_grad()
