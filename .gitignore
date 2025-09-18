@@ -2,8 +2,9 @@
 .venv
 
 # Ignore data folders
-**/data/
-src/open-pulse-graph-classifier/data/
+**/data_mapper/
+!.gitkeep
+src/classifier/data_mapper/
 !.gitkeep
 
 # Python cache

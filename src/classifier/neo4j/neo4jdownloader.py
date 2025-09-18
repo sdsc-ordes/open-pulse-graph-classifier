@@ -1,4 +1,4 @@
-from neo4j import GraphDatabase, RoutingControl
+from neo4j import GraphDatabase
 from neo4j.exceptions import DriverError, Neo4jError
 import logging
 import numpy as np
@@ -24,15 +24,25 @@ class Neo4JDownloader:
             print(record)
 
     def get_nodes(self, driver, label):
-        query = f"""
-        MATCH (n:{label})
-        RETURN ID(n) AS id, n.name AS features
+        # query = f"""
+        # MATCH (n:{label})
+        # RETURN
+        #     ID(n) AS id,
+        #     { name: n.name, anchor: n.anchor } AS features;
+        # """
+        query = """
+        CALL apoc.cypher.run(
+            'MATCH (n:`' + $label + '`)
+            RETURN ID(n) AS id, n.name AS name, n.anchor AS anchor',
+            {label: $label}
+        ) YIELD value
+        RETURN value.id, {name: value.name, anchor: value.anchor} AS features;
         """
         try:
-            results = driver.run(query)
+            results = driver.run(query, {"label": label})
             ids, features = [], []
             for record in results:
-                ids.append(record["id"])
+                ids.append(record["value.id"])
                 features.append(record["features"])
             return ids, features
         except (DriverError, Neo4jError) as exception:

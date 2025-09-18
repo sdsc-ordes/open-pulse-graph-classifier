@@ -1,40 +1,56 @@
 import torch
-import torch.nn.functional as F
-from sklearn.metrics import roc_auc_score
 
-from classifier.processing.postprocessing import get_probs_preds
+# import torch.nn.functional as F
+from sklearn.metrics import accuracy_score, roc_auc_score
+from itertools import cycle
+import numpy as np
+
+# from classifier.processing.postprocessing import get_probs_preds
 
 
-def train(train_loader, device, model, optimizer, n_epochs):
-    print("Training")
+def train(loaders_dict, device, model, optimizer, n_epochs):
+    """
+    loaders_dict: dict {ntype: train_loader}
+    """
+    print(f"Training jointly on node types: {list(loaders_dict.keys())}")
     loss_per_epoch = []
+    # this could be a list if different node types need different criterion
+    criterion = torch.nn.BCEWithLogitsLoss()
 
     for epoch in range(n_epochs):
         model.train()
         total_loss = 0
-        total_batches = 0
-
-        criterion = torch.nn.BCEWithLogitsLoss()
         steps = 0
 
-        for batch in loader:
-            batch = batch.to(device)
-            optimizer.zero_grad()
-            logits_dict = model(batch.x_dict, batch.edge_index_dict)
+        # iterate in round-robin fashion over all loaders
+        iterators = {ntype: cycle(loader) for ntype, loader in loaders_dict.items()}
+        # Each epoch goes for as long as the biggest loader.
+        # Smaller loaders will cycle through their data multiple times.
+        num_batches = max(len(loader) for loader in loaders_dict.values())
 
-            loss = 0
-            for ntype in logits_dict.keys():
+        for _ in range(num_batches):
+            optimizer.zero_grad()
+            batch_losses = []
+
+            for ntype, iterator in iterators.items():
+                batch = next(iterator).to(device)
+                logits_dict = model(batch.x_dict, batch.edge_index_dict)
+
                 if hasattr(batch[ntype], "y") and hasattr(batch[ntype], "batch_size"):
                     logits = logits_dict[ntype][: batch[ntype].batch_size].view(-1)
                     y = batch[ntype].y[: batch[ntype].batch_size].float()
-                    loss = loss + criterion(logits, y)
 
-            if loss > 0:
+                    loss = criterion(logits, y)
+                    batch_losses.append(loss)
+
+            if batch_losses:
+                loss = sum(batch_losses)
                 loss.backward()
                 optimizer.step()
                 total_loss += loss.item()
                 steps += 1
-        epoch_loss = total_loss / max(steps, 1) if max(steps, 1) > 0 else 0
+
+        epoch_loss = total_loss / max(steps, 1)
         loss_per_epoch.append(epoch_loss)
         print(f"Epoch {epoch + 1}/{n_epochs}, Loss: {epoch_loss:.4f}")
 
@@ -42,41 +58,45 @@ def train(train_loader, device, model, optimizer, n_epochs):
 
 
 @torch.no_grad()
-def evaluate(val_loader, device, model):
+def evaluate(loaders_dict, device, model):
+    """
+    loaders_dict: dict {ntype: val_loader}
+    """
     model.eval()
     criterion = torch.nn.BCEWithLogitsLoss()
 
     total_loss = 0.0
     steps = 0
 
-    all_probs = {ntype: [] for ntype in val_loader.data.node_types}
-    all_labels = {ntype: [] for ntype in val_loader.data.node_types}
+    all_probs = {ntype: [] for ntype in loaders_dict.keys()}
+    all_labels = {ntype: [] for ntype in loaders_dict.keys()}
 
-    for batch in val_loader:
-        batch = batch.to(device)
-        logits_dict = model(batch.x_dict, batch.edge_index_dict)
+    with torch.no_grad():
+        for ntype, val_loader in loaders_dict.items():
+            for batch in val_loader:
+                batch = batch.to(device)
+                logits_dict = model(batch.x_dict, batch.edge_index_dict)
 
-        for ntype in logits_dict.keys():
-            if hasattr(batch[ntype], "y") and hasattr(batch[ntype], "batch_size"):
-                bs = batch[ntype].batch_size
-                if bs == 0:
-                    continue
+                if hasattr(batch[ntype], "y") and hasattr(batch[ntype], "batch_size"):
+                    batch_size = batch[ntype].batch_size
+                    if batch_size == 0:
+                        continue
 
-                logits = logits_dict[ntype][:bs].view(-1)
-                y = batch[ntype].y[:bs].float()
+                    logits = logits_dict[ntype][:batch_size].view(-1)
+                    y = batch[ntype].y[:batch_size].float()
 
-                loss = criterion(logits, y)
-                total_loss += loss.item()
-                steps += 1
+                    loss = criterion(logits, y)
+                    total_loss += loss.item()
+                    steps += 1
 
-                probs = torch.sigmoid(logits).cpu().numpy()
-                labels = y.cpu().numpy()
-                all_probs[ntype].append(probs)
-                all_labels[ntype].append(labels)
+                    probs = torch.sigmoid(logits).cpu().numpy()
+                    labels = y.cpu().numpy()
+                    all_probs[ntype].append(probs)
+                    all_labels[ntype].append(labels)
 
     # Aggregate metrics
     results = {}
-    for ntype in all_probs.keys():
+    for ntype in loaders_dict.keys():
         if len(all_probs[ntype]) == 0:
             continue
         probs = np.concatenate(all_probs[ntype])
@@ -85,12 +105,102 @@ def evaluate(val_loader, device, model):
         try:
             auc = roc_auc_score(labels, probs)
         except ValueError:
-            auc = float("nan")  # e.g., if only one class present
+            auc = float("nan")  # e.g., only one class present
         results[ntype] = {"acc": acc, "auc": auc, "n": len(labels)}
 
     avg_loss = total_loss / max(steps, 1)
 
     return avg_loss, results
+
+
+# -------------------------------
+# LEGACY CODE
+# def train(train_loader, device, model, optimizer, n_epochs):
+#     print("Training")
+#     loss_per_epoch = []
+
+#     for epoch in range(n_epochs):
+#         model.train()
+#         total_loss = 0
+#         total_batches = 0
+
+#         criterion = torch.nn.BCEWithLogitsLoss()
+#         steps = 0
+
+#         for batch in loader:
+#             batch = batch.to(device)
+#             optimizer.zero_grad()
+#             logits_dict = model(batch.x_dict, batch.edge_index_dict)
+
+#             loss = 0
+#             for ntype in logits_dict.keys():
+#                 if hasattr(batch[ntype], "y") and hasattr(batch[ntype], "batch_size"):
+#                     logits = logits_dict[ntype][: batch[ntype].batch_size].view(-1)
+#                     y = batch[ntype].y[: batch[ntype].batch_size].float()
+#                     loss = loss + criterion(logits, y)
+
+#             if loss > 0:
+#                 loss.backward()
+#                 optimizer.step()
+#                 total_loss += loss.item()
+#                 steps += 1
+#         epoch_loss = total_loss / max(steps, 1) if max(steps, 1) > 0 else 0
+#         loss_per_epoch.append(epoch_loss)
+#         print(f"Epoch {epoch + 1}/{n_epochs}, Loss: {epoch_loss:.4f}")
+
+#     return loss_per_epoch
+
+# -------------------------------
+# LEGACY CODE
+# def evaluate(val_loader, device, model):
+#     model.eval()
+#     criterion = torch.nn.BCEWithLogitsLoss()
+
+#     total_loss = 0.0
+#     steps = 0
+
+#     all_probs = {ntype: [] for ntype in val_loader.data.node_types}
+#     all_labels = {ntype: [] for ntype in val_loader.data.node_types}
+
+#     for batch in val_loader:
+#         batch = batch.to(device)
+#         logits_dict = model(batch.x_dict, batch.edge_index_dict)
+
+#         for ntype in logits_dict.keys():
+#             if hasattr(batch[ntype], "y") and hasattr(batch[ntype], "batch_size"):
+#                 bs = batch[ntype].batch_size
+#                 if bs == 0:
+#                     continue
+
+#                 logits = logits_dict[ntype][:bs].view(-1)
+#                 y = batch[ntype].y[:bs].float()
+
+#                 loss = criterion(logits, y)
+#                 total_loss += loss.item()
+#                 steps += 1
+
+#                 probs = torch.sigmoid(logits).cpu().numpy()
+#                 labels = y.cpu().numpy()
+#                 all_probs[ntype].append(probs)
+#                 all_labels[ntype].append(labels)
+
+#     # Aggregate metrics
+#     results = {}
+#     for ntype in all_probs.keys():
+#         if len(all_probs[ntype]) == 0:
+#             continue
+#         probs = np.concatenate(all_probs[ntype])
+#         labels = np.concatenate(all_labels[ntype])
+#         acc = accuracy_score(labels, (probs >= 0.5).astype(int))
+#         try:
+#             auc = roc_auc_score(labels, probs)
+#         except ValueError:
+#             auc = float("nan")  # e.g., if only one class present
+#         results[ntype] = {"acc": acc, "auc": auc, "n": len(labels)}
+
+#     avg_loss = total_loss / max(steps, 1)
+
+#     return avg_loss, results
 
 
 # LEGACY
@@ -126,69 +236,70 @@ def evaluate(val_loader, device, model):
 
 #     return loss_per_epoch
 
+# -------------------------------
+# LEGACY CODE
+# @torch.no_grad()
+# def evaluate(loader, device, model):
+#     """
+#     Evaluates accuracy and AUC-ROC for each node type in the batches
+#     generated by a single NeighborLoader.
 
-@torch.no_grad()
-def evaluate(loader, device, model):
-    """
-    Evaluates accuracy and AUC-ROC for each node type in the batches
-    generated by a single NeighborLoader.
+#     Args:
+#         loader: A single PyG NeighborLoader.
+#         device: CPU or GPU device.
+#         model: The trained GNN model.
 
-    Args:
-        loader: A single PyG NeighborLoader.
-        device: CPU or GPU device.
-        model: The trained GNN model.
+#     Returns:
+#         dict: Dictionary with accuracy and ROC AUC per node type.
+#     """
+#     print("Evaluating")
+#     model.eval()
 
-    Returns:
-        dict: Dictionary with accuracy and ROC AUC per node type.
-    """
-    print("Evaluating")
-    model.eval()
+#     # Accumulators per node type
+#     correct = {}
+#     total = {}
+#     all_preds = {}
+#     all_labels = {}
 
-    # Accumulators per node type
-    correct = {}
-    total = {}
-    all_preds = {}
-    all_labels = {}
+#     for batch in loader:
+#         batch = batch.to(device)
 
-    for batch in loader:
-        batch = batch.to(device)
+#         with torch.no_grad():
+#             out = model(batch.x_dict, batch.edge_index_dict)
+#             for node_type in batch.node_types:
+#                 if node_type not in out or node_type not in batch.node_types:
+#                     continue
+#                 print("Processing correct and total for node type:", node_type)
+#                 logits = out[node_type]  # [N_nodes, n_classes]
+#                 labels = batch[node_type].y
 
-        with torch.no_grad():
-            out = model(batch.x_dict, batch.edge_index_dict)
-            for node_type in batch.node_types:
-                if node_type not in out or node_type not in batch.node_types:
-                    continue
-                print("Processing correct and total for node type:", node_type)
-                logits = out[node_type]  # [N_nodes, n_classes]
-                labels = batch[node_type].y
+#                 preds, probs = get_probs_preds(logits)
 
-                preds, probs = get_probs_preds(logits)
+#                 correct[node_type] = (
+#                     correct.get(node_type, 0) + (preds == labels).sum().item()
+#                 )
+#                 total[node_type] = total.get(node_type, 0) + labels.size(0)
 
-                correct[node_type] = (
-                    correct.get(node_type, 0) + (preds == labels).sum().item()
-                )
-                total[node_type] = total.get(node_type, 0) + labels.size(0)
+#                 all_preds.setdefault(node_type, []).append(probs.cpu())
+#                 all_labels.setdefault(node_type, []).append(labels.cpu())
 
-                all_preds.setdefault(node_type, []).append(probs.cpu())
-                all_labels.setdefault(node_type, []).append(labels.cpu())
+#     results = {}
+#     print("TOTAL KEYS:", total.keys())
+#     for node_type in total.keys():
+#         accuracy = (
+#             correct[node_type] / total[node_type] if total[node_type] > 0 else 0.0
+#         )
 
-    results = {}
-    print("TOTAL KEYS:", total.keys())
-    for node_type in total.keys():
-        accuracy = (
-            correct[node_type] / total[node_type] if total[node_type] > 0 else 0.0
-        )
+#         if total[node_type] > 1:
+#             y_pred = torch.cat(all_preds[node_type]).numpy()
+#             y_true = torch.cat(all_labels[node_type]).numpy()
+#             try:
+#                 auc = roc_auc_score(y_true, y_pred)
+#             except ValueError:
+#                 auc = None
+#         else:
+#             auc = None
 
-        if total[node_type] > 1:
-            y_pred = torch.cat(all_preds[node_type]).numpy()
-            y_true = torch.cat(all_labels[node_type]).numpy()
-            try:
-                auc = roc_auc_score(y_true, y_pred)
-            except ValueError:
-                auc = None
-        else:
-            auc = None
+#         results[node_type] = {"accuracy": accuracy, "roc_auc": auc}
 
-        results[node_type] = {"accuracy": accuracy, "roc_auc": auc}
-
-    return results
+#     return results

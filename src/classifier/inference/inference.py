@@ -18,7 +18,9 @@ from classifier.processing.postprocessing import (
 @torch.no_grad()
 def inference(neo4j_database):
     extracted_data = extract_data(neo4j_database)
+    # TO-DO: NeighborLoader below should be done only on unknowns the anchors need to be put as features. Like for train.
     transformed_data = data_transformer(extracted_data)
+    print("Validating data with PyG tools (data.validate()):", data.validate())
 
     # download model
     # TO-DO: model name should become a parameter in the future
@@ -36,6 +38,7 @@ def inference(neo4j_database):
 
     # inference
     # TO-DO: threshold should become a parameter in the future
+    # TO-DO: Need to make this multiple neighbor loaders like training
     threshold = 0.75
     inference_loader = NeighborLoader(
         transformed_data,

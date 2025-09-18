@@ -2,8 +2,6 @@ import torch
 from classifier.neo4j.neo4jdownloader import Neo4JDownloader
 from classifier.processing.data_processor import (
     create_heterogenous_data,
-    identify_anchors,
-    add_labels,
 )
 from dotenv import load_dotenv
 import os
@@ -31,7 +29,7 @@ def get_downloader(neo4j_database):
     return Neo4JDownloader(NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD, NEO4J_DATABASE)
 
 
-def extract_data(neo4j_database=None):
+def extract_data(neo4j_database=None, train_mode=False, train_percentage_unknowns=0.5):
     downloader = get_downloader(neo4j_database)
 
     nodes = ["user", "repo", "org"]
@@ -47,7 +45,7 @@ def extract_data(neo4j_database=None):
         },
         "fork of": {
             "type1": {"source": "user", "target": "repo"},
-            "type1": {"source": "org", "target": "repo"},
+            "type2": {"source": "org", "target": "repo"},
         },
     }
 
@@ -59,9 +57,14 @@ def extract_data(neo4j_database=None):
         # print(nodes_features["org"])
         # print(edges_indices)
 
-        data = create_heterogenous_data(nodes_ids, edges_indices, relationships)
-        data = identify_anchors(data)
-        data = add_labels(data, 1)
+        data = create_heterogenous_data(
+            nodes_ids,
+            nodes_features,
+            edges_indices,
+            relationships,
+            train_mode,
+            train_percentage_unknowns,
+        )
         # torch.save(data, "open-pulse-graph-classifier/data/heteoro_data.pt")
         return data
     finally:
