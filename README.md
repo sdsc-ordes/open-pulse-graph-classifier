@@ -44,7 +44,8 @@ python open-pulse-graph-classifier/train/main.py
 ```
 source .venv/bin/activate
 uv pip install -r requirements.txt
-python src/openpulse_graph_classifier/main.py
+cd src
+python training.py
 ```
 
 ### RunAI
@@ -52,18 +53,18 @@ python src/openpulse_graph_classifier/main.py
 #### Training
 
 ```
-runai config project <your project>
+runai project set <your project>
 ```
 
 ```
-runai training submit openpulse-training \
-    -i ghcr.io/sdsc-ordes/open-pulse-graph-classifier-training:latest \
-    --gpu 0.02 \
-    --interactive \
-    --attach
+runai workspace submit openpulse-training \
+  -i ghcr.io/sdsc-ordes/open-pulse-graph-classifier-train:latest \
+  --attach
 ```
 
 #### Inference
+
+To do: this needs update to new runai cli
 
 ```
 runai inference submit openpulse-inference \

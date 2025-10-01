@@ -59,9 +59,9 @@ def global_local_matcher(nodes_ids):
 
 
 def save_index_mapping(global_to_local, local_to_global):
-    with open("src/classifier/data_mapper/global_to_local.json", "w") as fp:
+    with open("classifier/data_mapper/global_to_local.json", "w") as fp:
         json.dump(global_to_local, fp)
-    with open("src/classifier/data_mapper/local_to_global.json", "w") as fp:
+    with open("classifier/data_mapper/local_to_global.json", "w") as fp:
         json.dump(local_to_global, fp)
 
 

@@ -3,7 +3,7 @@ import json
 
 
 def get_mapping_local_to_global():
-    with open("src/classifier/data_mapper/local_to_global.json", "r") as fp:
+    with open("classifier/data_mapper/local_to_global.json", "r") as fp:
         local_to_global = json.load(fp)
     return local_to_global
 

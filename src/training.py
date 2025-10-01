@@ -25,64 +25,64 @@ def training(neo4j_database, train_percentage_unknowns=0.5):
         # extract train loaders for all node types
         train_loaders = {ntype: loader[0] for ntype, loader in loaders.items()}
 
-        # model_supervised = GNN(hidden_channels=64, out_channels=2)
-        # model_supervised_hetero = to_hetero(
-        #     model_supervised, data.metadata(), aggr="sum"
-        # )
+        model_supervised = GNN(hidden_channels=64, out_channels=2)
+        model_supervised_hetero = to_hetero(
+            model_supervised, data.metadata(), aggr="sum"
+        )
 
-        # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        # model = model_supervised_hetero.to(device)
-        # optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        model = model_supervised_hetero.to(device)
+        optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
 
-        # loss = train(train_loaders, device, model, optimizer, n_epochs=100)
+        loss = train(train_loaders, device, model, optimizer, n_epochs=1)
 
-        # # save model
-        # torch.save(model, "open-pulse-graph-classifier/models/supervised_hetero.pt")
-        # print("Model saved to open-pulse-graph-classifier/models/supervised_hetero.pt")
-        # api = HfApi()
-        # api.upload_file(
-        #     path_or_fileobj="open-pulse-graph-classifier/models/supervised_hetero.pt",
-        #     path_in_repo="models/supervised_hetero.pt",
-        #     repo_id="SDSC/open-pulse-graph-classifier",
-        #     repo_type="model",
-        # )
+        # save model
+        torch.save(model, "classifier/models/supervised_hetero.pt")
+        print("Model saved to classifier/models/supervised_hetero.pt")
+        api = HfApi()
+        api.upload_file(
+            path_or_fileobj="classifier/models/supervised_hetero.pt",
+            path_in_repo="classifier/models/supervised_hetero.pt",
+            repo_id="SDSC/open-pulse-graph-classifier",
+            repo_type="model",
+        )
 
-        # # evaluate model
-        # test_loaders = {ntype: loader[1] for ntype, loader in loaders.items()}
-        # val_loaders = {ntype: loader[2] for ntype, loader in loaders.items()}
-        # results = evaluate(test_loaders, device, model)
-        # print(results)
-        # for node_type in data.node_types:
-        #     print(
-        #         f"Node Type {node_type} has accuracy of {results[node_type]['accuracy']} and AUC score of {results[node_type]['roc_auc']}"
-        #     )
+        # evaluate model
+        test_loaders = {ntype: loader[1] for ntype, loader in loaders.items()}
+        val_loaders = {ntype: loader[2] for ntype, loader in loaders.items()}
+        results = evaluate(test_loaders, device, model)
+        print(results)
+        for node_type in data.node_types:
+            print(
+                f"Node Type {node_type} has accuracy of {results[node_type]['accuracy']} and AUC score of {results[node_type]['roc_auc']}"
+            )
 
         # ----------------------------------
         # TEST NEO4J UPLOAD
-        from classifier.processing.predictions_upload import upload_to_neo4j
+        # from classifier.processing.predictions_upload import upload_to_neo4j
 
-        all_probs = fake_all_probs(train_loaders)
-        upload_to_neo4j(all_probs, neo4j_database)
+        # all_probs = fake_all_probs(train_loaders)
+        # upload_to_neo4j(all_probs, neo4j_database)
 
 
 # ----------------------------------
 # TEST NEO4J UPLOAD
-def fake_all_probs(loaders):
-    import json
+# def fake_all_probs(loaders):
+#     import json
 
-    # using the local_to_global mapping create a fake all_probs dict for part of the data
-    all_probs = {ntype: [] for ntype in loaders.keys()}
-    with open("src/classifier/data_mapper/local_to_global.json", "r") as fp:
-        local_to_global = json.load(fp)
-    for ntype, mapping in local_to_global.items():
-        num_nodes = len(mapping)
-        # create fake probabilities
-        probs = torch.rand(num_nodes).numpy()
-        nodes_probs = [
-            {nodeid: float(prob)} for nodeid, prob in zip(range(num_nodes), probs)
-        ]
-        all_probs[ntype].extend(nodes_probs)
-    return all_probs
+#     # using the local_to_global mapping create a fake all_probs dict for part of the data
+#     all_probs = {ntype: [] for ntype in loaders.keys()}
+#     with open("classifier/data_mapper/local_to_global.json", "r") as fp:
+#         local_to_global = json.load(fp)
+#     for ntype, mapping in local_to_global.items():
+#         num_nodes = len(mapping)
+#         # create fake probabilities
+#         probs = torch.rand(num_nodes).numpy()
+#         nodes_probs = [
+#             {nodeid: float(prob)} for nodeid, prob in zip(range(num_nodes), probs)
+#         ]
+#         all_probs[ntype].extend(nodes_probs)
+#     return all_probs
 
 
 if __name__ == "__main__":
