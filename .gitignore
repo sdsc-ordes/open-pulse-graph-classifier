@@ -2,10 +2,8 @@
 .venv
 
 # Ignore data folders
-**/data_mapper/
-!.gitkeep
-src/classifier/data_mapper/
-!.gitkeep
+# src/classifier/data_mapper/
+# !src/classifier/data_mapper/.gitkeep
 
 # Python cache
 *.pyc
