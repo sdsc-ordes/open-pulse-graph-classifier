@@ -33,6 +33,8 @@ ADD src/training.py /app/training.py
 ADD src/classifier/train /app/classifier/train
 ADD src/classifier/processing /app/classifier/processing
 ADD src/classifier/neo4j /app/classifier/neo4j
+ADD src/classifier/data_mapper /app/classifier/data_mapper
+ADD src/classifier/models /app/classifier/models
 
 # Sync the project into a new environment, using the frozen lockfile
 WORKDIR /app
