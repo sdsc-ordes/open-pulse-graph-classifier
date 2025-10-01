@@ -24,9 +24,9 @@ def predictions_map_format(all_probs):
     predictions = []
     local_to_global = get_mapping_local_to_global()
     for ntype, probs_list in all_probs.items():
-        for batch_probs in probs_list:
-            for i, prob in enumerate(batch_probs):
+        for prob_dict in probs_list:
+            for i, prob in prob_dict.items():
                 node_id = i
                 global_id = get_nodeID(node_id, ntype, local_to_global)
-                predictions.append({"id": global_id, "value": float(prob)})
+                predictions.append({"id": global_id, "prediction": float(prob)})
     return predictions

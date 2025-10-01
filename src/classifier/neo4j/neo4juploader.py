@@ -17,14 +17,16 @@ class Neo4JUploader:
     def upload_predictions(self, driver, predictions):
         # example data
         # predictions = [
-        #     {"id": 1, "prediction": 42},
-        #     {"id": 2, "prediction": 99},
-        #     {"id": 3, "prediction": 123}
+        #     {"id": 1, "prediction": 0.42},
+        #     {"id": 2, "prediction": 0.99},
+        #     {"id": 3, "prediction": 0.13}
         # ]
+        print(predictions)
         query = """
             UNWIND $predictions AS predictionData
-            MATCH (n:MyNode { id: predictionData.id })
-            SET n.prediction = predictionData.value
+            MATCH (n)
+            WHERE ELEMENTID(n) = predictionData.id
+            SET n.prediction = predictionData.prediction
             RETURN n
             """
         driver.run(query, {"predictions": predictions})
