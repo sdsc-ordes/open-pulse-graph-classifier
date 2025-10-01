@@ -1,6 +1,6 @@
 import torch
 from classifier.neo4j.neo4jdownloader import Neo4JDownloader
-from classifier.processing.data_processor import (
+from classifier.processing.data_heterogenous import (
     create_heterogenous_data,
 )
 from dotenv import load_dotenv
@@ -45,7 +45,7 @@ def extract_data(neo4j_database=None, train_mode=False, train_percentage_unknown
         },
         "fork of": {
             "type1": {"source": "user", "target": "repo"},
-            "type2": {"source": "org", "target": "repo"},
+            "type": {"source": "org", "target": "repo"},
         },
     }
 

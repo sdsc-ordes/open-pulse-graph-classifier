@@ -3,23 +3,18 @@ from torch_geometric.loader import NeighborLoader
 from huggingface_hub import hf_hub_download
 import json
 
-
 from classifier.processing.data_extraction import (
     get_downloader,
     extract_data,
 )
 from classifier.processing.data_transformer import data_transformer
-from classifier.processing.postprocessing import (
-    get_probs_preds,
-    get_positive_output,
-)
+from classifier.inference.loaders import make_inference_loader
+from classifier.processing.predictions_upload import upload_to_neo4j
 
 
 @torch.no_grad()
 def inference(neo4j_database):
     extracted_data = extract_data(neo4j_database)
-    # TO-DO: NeighborLoader below should be done only on unknowns the anchors need to be put as features. Like for train.
-    transformed_data = data_transformer(extracted_data)
     print("Validating data with PyG tools (data.validate()):", data.validate())
 
     # download model
@@ -37,31 +32,30 @@ def inference(neo4j_database):
     model.eval()
 
     # inference
-    # TO-DO: threshold should become a parameter in the future
-    # TO-DO: Need to make this multiple neighbor loaders like training
-    threshold = 0.75
-    inference_loader = NeighborLoader(
-        transformed_data,
-        input_nodes=("user", transformed_data["user"]),
-        num_neighbors=[15, 10],
-        batch_size=100,
-        shuffle=False,
-    )
-    downloader = get_downloader(neo4j_database)
-    output = {}
-    for batch in inference_loader:
-        batch = batch.to(device)
-        with torch.no_grad():
-            out = model(batch.x_dict, batch.edge_index_dict)
-            for node_type in batch.node_types:
-                if node_type not in out or node_type not in batch.node_types:
-                    continue
-                print("Processing output for node type:", node_type)
-                logits = out[node_type]  # [N_nodes, n_classes]
-                _, probs = get_probs_preds(logits)
-                output[node_type].update(
-                    get_positive_output(
-                        batch.x_dict[node_type], node_type, probs, threshold, downloader
-                    )
-                )
-    return output
+    loaders = make_loaders(data)
+    inference_loaders = {ntype: loader[0] for ntype, loader in loaders.items()}
+
+    # all probs needs to save id and prediction
+    all_probs = {ntype: [] for ntype in inference_loaders.keys()}
+    with torch.no_grad():
+        for ntype, loader in inference_loaders.items():
+            for batch in loader:
+                batch = batch.to(device)
+                logits_dict = model(batch.x_dict, batch.edge_index_dict)
+                if hasattr(batch[ntype], "batch_size"):
+                    batch_size = batch[ntype].batch_size
+                    if batch_size == 0:
+                        continue
+                    logits = logits_dict[ntype][:batch_size].view(-1)
+                    probs = torch.sigmoid(logits).cpu().numpy()
+                    nodes_probs = [
+                        {nodeid: prob}
+                        for nodeid, prob in zip(
+                            batch[ntype].node_id[:batch_size].cpu().numpy(), probs
+                        )
+                    ]
+                    all_probs[ntype].extend(nodes_probs)
+
+    # upload to neo4j
+    upload_to_neo4j(all_probs, neo4j_database)
+    return

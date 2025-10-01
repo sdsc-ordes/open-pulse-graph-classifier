@@ -24,12 +24,6 @@ class Neo4JDownloader:
             print(record)
 
     def get_nodes(self, driver, label):
-        # query = f"""
-        # MATCH (n:{label})
-        # RETURN
-        #     ID(n) AS id,
-        #     { name: n.name, anchor: n.anchor } AS features;
-        # """
         query = """
         CALL apoc.cypher.run(
             'MATCH (n:`' + $label + '`)

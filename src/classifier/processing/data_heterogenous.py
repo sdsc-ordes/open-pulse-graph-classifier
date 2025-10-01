@@ -1,40 +1,13 @@
 import torch
 from torch_geometric.data import HeteroData
-import json
-from sklearn.feature_extraction import DictVectorizer
 
-from classifier.processing.data_transformer import identify_anchors
-
-
-def global_local_matcher(nodes_ids):
-    global_to_local = {}
-    local_node_counts = {}
-
-    for node_type, ids in nodes_ids.items():
-        global_to_local[node_type] = {gid: i for i, gid in enumerate(ids)}
-        local_node_counts[node_type] = len(ids)
-
-    local_to_global = {
-        node_type: {i: gid for i, gid in enumerate(gid_list)}
-        for node_type, gid_list in nodes_ids.items()
-    }
-    return global_to_local, local_to_global, local_node_counts
-
-
-def save_index_mapping(global_to_local, local_to_global):
-    with open("src/data_mapper/global_to_local.json", "w") as fp:
-        json.dump(global_to_local, fp)
-    with open("src/data_mapper/local_to_global.json", "w") as fp:
-        json.dump(local_to_global, fp)
-
-
-def vectorize_features(features):
-    # TO-DO: come back and see if this is the right way to vectorize features
-    # is this correct or do we need to save it to use the same all the time?
-    # is this the right technique?
-    vec = DictVectorizer()
-    features_vectorized = vec.fit_transform(features).toarray()
-    return features_vectorized
+from classifier.processing.data_transformer import (
+    identify_anchors,
+    global_local_matcher,
+    save_index_mapping,
+    data_transformer,
+    vectorize_features,
+)
 
 
 def create_heterogenous_data(
@@ -90,4 +63,5 @@ def create_heterogenous_data(
 
             edge_index_tensor = torch.tensor([src_ids, dst_ids], dtype=torch.long)
             data[(source, rel_type.lower(), target)].edge_index = edge_index_tensor
+    data = data_transformer(data)
     return data
