@@ -62,12 +62,10 @@ def training(neo4j_database, train_percentage_unknowns=0.5):
             )
 
         # ----------------------------------
-        # TEST NEO4J UPLOAD (normally not done in training)
-        from classifier.processing.predictions_upload import upload_to_neo4j
-
-        # all_probs = fake_all_probs(train_loaders) #used to test in local dev
-        print("Uploading predictions to Neo4j")
-        upload_to_neo4j(all_probs, neo4j_database)
+        # TEST NEO4J UPLOAD
+        # from classifier.processing.predictions_upload import upload_to_neo4j
+        # # all_probs = fake_all_probs(train_loaders) #used to test in local dev
+        # upload_to_neo4j(all_probs, neo4j_database)
 
 
 # ----------------------------------
