@@ -106,7 +106,7 @@ def evaluate(loaders_dict, device, model):
             auc = roc_auc_score(labels, probs)
         except ValueError:
             auc = float("nan")  # e.g., only one class present
-        results[ntype] = {"acc": acc, "auc": auc, "n": len(labels)}
+        results[ntype] = {"accuracy": acc, "roc_auc": auc, "n": len(labels)}
 
     avg_loss = total_loss / max(steps, 1)
 
