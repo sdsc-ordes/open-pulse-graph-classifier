@@ -57,11 +57,10 @@ runai project set <your project>
 ```
 
 ```
-runai workspace submit openpulse-training2 \
+runai workspace submit openpulse-training \
   -i ghcr.io/sdsc-ordes/open-pulse-graph-classifier-train:latest \
-  --gpu-request-type portion --gpu-portion-request 0.9 \
   --image-pull-policy Always \
-  --attach
+  --gpu-devices-request 1 --preemptible
 ```
 
 Then interactively run training by :

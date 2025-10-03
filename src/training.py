@@ -49,24 +49,25 @@ def training(neo4j_database, train_percentage_unknowns=0.5):
         print("Evaluating model")
         test_loaders = {ntype: loader[1] for ntype, loader in loaders.items()}
         val_loaders = {ntype: loader[2] for ntype, loader in loaders.items()}
-        results = evaluate(test_loaders, device, model)
+        avg_loss, results = evaluate(test_loaders, device, model)
         for node_type in data.node_types:
             print(
                 f"Test Set: Node Type {node_type} has accuracy of {results[node_type]['accuracy']} and AUC score of {results[node_type]['roc_auc']}"
             )
 
-        results = evaluate(val_loaders, device, model)
+        avg_loss, results = evaluate(val_loaders, device, model)
         for node_type in data.node_types:
             print(
                 f"Validation Set: Node Type {node_type} has accuracy of {results[node_type]['accuracy']} and AUC score of {results[node_type]['roc_auc']}"
             )
 
         # ----------------------------------
-        # TEST NEO4J UPLOAD
-        # from classifier.processing.predictions_upload import upload_to_neo4j
+        # TEST NEO4J UPLOAD (normally not done in training)
+        from classifier.processing.predictions_upload import upload_to_neo4j
 
-        # all_probs = fake_all_probs(train_loaders)
-        # upload_to_neo4j(all_probs, neo4j_database)
+        # all_probs = fake_all_probs(train_loaders) #used to test in local dev
+        print("Uploading predictions to Neo4j")
+        upload_to_neo4j(all_probs, neo4j_database)
 
 
 # ----------------------------------
