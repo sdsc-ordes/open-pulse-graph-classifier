@@ -11,19 +11,18 @@ from classifier.processing.data_transformer import data_transformer
 from classifier.inference.loaders import make_inference_loader
 from classifier.processing.predictions_upload import upload_to_neo4j
 
+from classifier.huggingface.hf_download_model import download_model_from_huggingface
+
 
 @torch.no_grad()
 def inference(neo4j_database):
     extracted_data = extract_data(neo4j_database)
-    print("Validating data with PyG tools (data.validate()):", data.validate())
+    print(
+        "Validating data with PyG tools (data.validate()):", extracted_data.validate()
+    )
 
     # download model
-    # TO-DO: model name should become a parameter in the future
-    hf_hub_download(
-        repo_id="SDSC/open-pulse-graph-classifier",
-        filename="models/supervised_hetero.pt",
-        local_dir="open-pulse-graph-classifier/models/supervised_hetero.pt",
-    )
+    download_model_from_huggingface()
 
     # load model
     loaded_model = torch.load("open-pulse-graph-classifier/models/supervised_hetero.pt")
@@ -32,7 +31,7 @@ def inference(neo4j_database):
     model.eval()
 
     # inference
-    loaders = make_loaders(data)
+    loaders = make_inference_loader(extracted_data)
     inference_loaders = {ntype: loader[0] for ntype, loader in loaders.items()}
 
     # all probs needs to save id and prediction

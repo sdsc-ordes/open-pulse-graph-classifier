@@ -32,7 +32,11 @@ def train(loaders_dict, device, model, optimizer, n_epochs):
             optimizer.zero_grad()
             batch_losses = []
 
+            print(procesing batch...)
+
             for ntype, iterator in iterators.items():
+                print(f"Processing node type {ntype}")
+
                 batch = next(iterator).to(device)
                 logits_dict = model(batch.x_dict, batch.edge_index_dict)
 

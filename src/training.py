@@ -1,11 +1,11 @@
 import torch
 from torch_geometric.nn import to_hetero
-from huggingface_hub import HfApi
 
 from classifier.processing.data_extraction import extract_data
 from classifier.models.supervised import GNN
 from classifier.train.loaders import make_loaders
 from classifier.train.train_eval import train, evaluate
+from classifier.huggingface.hf_upload_model import upload_model_to_huggingface
 
 
 def training(neo4j_database, train_percentage_unknowns=0.5):
@@ -13,27 +13,26 @@ def training(neo4j_database, train_percentage_unknowns=0.5):
     data = extract_data(neo4j_database, train_mode, train_percentage_unknowns)
 
     if data:
-        # transform data
-
         # print("Full data:")
         # print(data)
         # print(data['user', 'member of', 'org'].edge_index)
         print("Validating data with PyG tools (data.validate()):", data.validate())
 
         loaders = make_loaders(data)
-
-        # extract train loaders for all node types
-        train_loaders = {ntype: loader[0] for ntype, loader in loaders.items()}
+        print("Data loaders created for node types:", loaders.keys())
 
         model_supervised = GNN(hidden_channels=64, out_channels=1)
         model_supervised_hetero = to_hetero(
             model_supervised, data.metadata(), aggr="sum"
         )
+        print("Model created")
 
+        print("Training model")
+        # extract train loaders for all node types
+        train_loaders = {ntype: loader[0] for ntype, loader in loaders.items()}
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model = model_supervised_hetero.to(device)
         optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
-
         loss = train(train_loaders, device, model, optimizer, n_epochs=1)
         print("Final loss after training:", loss)
 
@@ -41,22 +40,25 @@ def training(neo4j_database, train_percentage_unknowns=0.5):
         # save model
         torch.save(model, "classifier/models/supervised_hetero.pt")
         print("Model saved to classifier/models/supervised_hetero.pt")
-        api = HfApi()
-        api.upload_file(
-            path_or_fileobj="classifier/models/supervised_hetero.pt",
-            path_in_repo="classifier/models/supervised_hetero.pt",
-            repo_id="SDSC/open-pulse-graph-classifier",
-            repo_type="model",
-        )
+        # upload model to huggingface
+        print("Uploading model to huggingface")
+        upload_model_to_huggingface()
+        print("Model uploaded to huggingface")
 
         # evaluate model
+        print("Evaluating model")
         test_loaders = {ntype: loader[1] for ntype, loader in loaders.items()}
         val_loaders = {ntype: loader[2] for ntype, loader in loaders.items()}
         results = evaluate(test_loaders, device, model)
-        print(results)
         for node_type in data.node_types:
             print(
-                f"Node Type {node_type} has accuracy of {results[node_type]['accuracy']} and AUC score of {results[node_type]['roc_auc']}"
+                f"Test Set: Node Type {node_type} has accuracy of {results[node_type]['accuracy']} and AUC score of {results[node_type]['roc_auc']}"
+            )
+
+        results = evaluate(val_loaders, device, model)
+        for node_type in data.node_types:
+            print(
+                f"Validation Set: Node Type {node_type} has accuracy of {results[node_type]['accuracy']} and AUC score of {results[node_type]['roc_auc']}"
             )
 
         # ----------------------------------

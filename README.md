@@ -59,8 +59,18 @@ runai project set <your project>
 ```
 runai workspace submit openpulse-training \
   -i ghcr.io/sdsc-ordes/open-pulse-graph-classifier-train:latest \
-  --attach --image-pull-policy Always
+  --gpu 1 \
+  --image-pull-policy Always \
+  --attach
 ```
+
+Then interactively run training by :
+
+1. entering into the container: `runai workspace bash openpulse-training`
+2. going to the right repository: `cd ../app/`
+3. running training script: `python training.py`
+
+(remember to set any env variables needed beforehand)
 
 #### Inference
 

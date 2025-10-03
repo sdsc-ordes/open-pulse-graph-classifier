@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 from classifier.processing.loaders import build_loader
 
 
-def make_loaders(data, batch_size=128, num_neighbors=[15, 10], random_state=42):
+def make_loaders(data, batch_size=32, num_neighbors=[10, 5], random_state=42):
     loaders = {}
 
     for ntype in data.node_types:
