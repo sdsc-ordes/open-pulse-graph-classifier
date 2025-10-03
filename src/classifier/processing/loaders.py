@@ -8,7 +8,7 @@ def build_loader(
     split_idx,
     shuffle,
     batch_size=32,
-    num_neighbors=[10, 5]
+    num_neighbors=[10, 5],
     random_state=42,
 ):
     return NeighborLoader(

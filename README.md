@@ -57,9 +57,9 @@ runai project set <your project>
 ```
 
 ```
-runai workspace submit openpulse-training \
+runai workspace submit openpulse-training2 \
   -i ghcr.io/sdsc-ordes/open-pulse-graph-classifier-train:latest \
-  --gpu 1 \
+  --gpu-request-type portion --gpu-portion-request 0.9 \
   --image-pull-policy Always \
   --attach
 ```
