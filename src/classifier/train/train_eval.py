@@ -32,7 +32,7 @@ def train(loaders_dict, device, model, optimizer, n_epochs):
             optimizer.zero_grad()
             batch_losses = []
 
-            print(procesing batch...)
+            print("Processing batch...")
 
             for ntype, iterator in iterators.items():
                 print(f"Processing node type {ntype}")
