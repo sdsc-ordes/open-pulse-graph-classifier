@@ -71,6 +71,37 @@ Then interactively run training by :
 
 (remember to set any env variables needed beforehand)
 
+#### Test Inference
+
+```
+runai workspace submit openpulse-inference \
+  -i ghcr.io/sdsc-ordes/open-pulse-graph-classifier-inference:latest \
+  --image-pull-policy Always \
+  --gpu-devices-request 1 --preemptible
+```
+
+Testing from inside the container:
+
+1. entering into the container: `runai workspace bash openpulse-inference`
+2. going to the right repository: `cd ../app/`
+3. install curl for all testing the api : `apt-get -y update; apt-get -y install curl`
+4. Try the test endpoint:
+
+```bash
+curl -X GET "http://localhost:8000/v1/test"
+```
+
+the output should be: `{"data":{"type":"test","id":"1","attributes":{"message":"Test endpoint is working!"}}}`
+
+5. Make a valid JWT token with the `utils/api_token.py` (if you have configured secret key etc.)
+6. Try the inference endpoint:
+
+```bash
+curl -X GET "http://localhost:8000/v1/inference/epfl/YOUR_DB" \
+  -H "accept: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
 #### Inference
 
 To do: this needs update to new runai cli

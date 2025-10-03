@@ -2,6 +2,10 @@ from jose import jwt
 from dotenv import load_dotenv
 import os
 import requests
+from datetime import datetime, timedelta
+from fastapi.security import HTTPAuthorizationCredentials
+
+from inference_api import verify_jwt
 
 load_dotenv()
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
@@ -17,8 +21,20 @@ INFERENCE_URL = os.getenv("INFERENCE_URL")
 NEO4J_DATABASE = os.getenv("NEO4J_DATABASE")
 
 # FOR RUNAI INFERENCE API
-payload = {"sub": AIRFLOW_SUB, "service": AIRFLOW_SERVICE}
+print("All configurations for token in place:")
+print(JWT_SECRET_KEY, JWT_ALGORITHM)
+payload = {
+    "sub": AIRFLOW_SUB,
+    "service": AIRFLOW_SERVICE,
+    "exp": datetime.utcnow() + timedelta(hours=1),
+    "iat": datetime.utcnow(),
+}
 token = jwt.encode(payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
+print("Validating token")
+credentials = HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
+print(credentials)
+payload = verify_jwt(credentials)
+print(payload)
 print(f"Generated token: {token}")
 
 # for AIRFLOW API
