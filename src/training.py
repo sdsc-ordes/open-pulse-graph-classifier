@@ -25,7 +25,7 @@ def training(neo4j_database, train_percentage_unknowns=0.5):
         # extract train loaders for all node types
         train_loaders = {ntype: loader[0] for ntype, loader in loaders.items()}
 
-        model_supervised = GNN(hidden_channels=64, out_channels=2)
+        model_supervised = GNN(hidden_channels=64, out_channels=1)
         model_supervised_hetero = to_hetero(
             model_supervised, data.metadata(), aggr="sum"
         )
@@ -35,7 +35,9 @@ def training(neo4j_database, train_percentage_unknowns=0.5):
         optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
 
         loss = train(train_loaders, device, model, optimizer, n_epochs=1)
+        print("Final loss after training:", loss)
 
+        print("Saving model")
         # save model
         torch.save(model, "classifier/models/supervised_hetero.pt")
         print("Model saved to classifier/models/supervised_hetero.pt")

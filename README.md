@@ -59,7 +59,7 @@ runai project set <your project>
 ```
 runai workspace submit openpulse-training \
   -i ghcr.io/sdsc-ordes/open-pulse-graph-classifier-train:latest \
-  --attach
+  --attach --image-pull-policy Always
 ```
 
 #### Inference
