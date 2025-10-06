@@ -18,6 +18,12 @@ JWT_ALGORITHM = os.getenv("JWT_ALGORITHM")
 
 def verify_jwt(credentials: HTTPAuthorizationCredentials = Depends(security)):
     token = credentials.credentials
+    print("token")
+    print(token)
+    payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+    print("payload")
+    print(payload)
+    print("service: ", payload.get("service"))
     try:
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
         if payload.get("service") != "airflow":
