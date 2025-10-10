@@ -17,18 +17,17 @@ JWT_ALGORITHM = os.getenv("JWT_ALGORITHM")
 
 
 def verify_jwt(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    print(JWT_SECRET_KEY)
     token = credentials.credentials
     print("token")
     print(token)
-    payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    print("payload")
-    print(payload)
-    print("service: ", payload.get("service"))
+    header = jwt.get_unverified_header(token)
+    print(header)
     try:
-        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-        if payload.get("service") != "airflow":
+        claims = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+        if claims.get("service") != "airflow":
             raise HTTPException(status_code=403, detail="Invalid service identity")
-        return payload
+        return claims
     except JWTError as e:
         print("JWT decode error:", e)
         raise HTTPException(status_code=403, detail="Invalid token")

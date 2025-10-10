@@ -97,9 +97,9 @@ the output should be: `{"data":{"type":"test","id":"1","attributes":{"message":"
 6. Try the inference endpoint:
 
 ```bash
-curl -X GET "http://localhost:8000/v1/inference/epfl/YOUR_DB" \
+curl -X GET "http://localhost:8000/v1/inference/epfl/neo4j" \
   -H "accept: application/json" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+  -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 #### Inference

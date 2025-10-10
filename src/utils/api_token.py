@@ -22,22 +22,21 @@ NEO4J_DATABASE = os.getenv("NEO4J_DATABASE")
 
 # FOR RUNAI INFERENCE API
 print("All configurations for token in place:")
-print(JWT_SECRET_KEY, JWT_ALGORITHM)
-payload = {
+print(datetime.utcnow() + timedelta(hours=3))
+claims = {
     "sub": AIRFLOW_SUB,
     "service": AIRFLOW_SERVICE,
-    "exp": datetime.utcnow() + timedelta(hours=1),
+    "exp": datetime.utcnow() + timedelta(hours=3),
     "iat": datetime.utcnow(),
 }
-token = jwt.encode(payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
+token = jwt.encode(claims, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
 print("Validating token")
 credentials = HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
-print(credentials)
-payload = verify_jwt(credentials)
-print(payload)
+claims = verify_jwt(credentials)
+print(claims)
 print(f"Generated token: {token}")
 
 # for AIRFLOW API
-# payload = {"username": AIRFLOW_USERNAME, "password": AIRFLOW_PASSWORD}
+# claims = {"username": AIRFLOW_USERNAME, "password": AIRFLOW_PASSWORD}
 # headers = {"Authorization": f"Bearer {token}"}
 # res = requests.get(INFERENCE_URL + f"/inference/{NEO4J_DATABASE}", headers=headers)
