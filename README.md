@@ -99,7 +99,8 @@ the output should be: `{"data":{"type":"test","id":"1","attributes":{"message":"
 ```bash
 curl -X GET "http://localhost:8000/v1/inference/epfl/neo4j" \
   -H "accept: application/json" \
-  -H "Authorization: Bearer YOUR_TOKEN"
+  -H "Authorization: Bearer YOUR_TOKEN" \
+
 ```
 
 #### Inference
